@@ -3,7 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- PHASE 7: SEO & Discoverability Tags -->
     <title>Inbox - Outbook</title>
+    <meta name="description" content="Outbook is a stealth client-side ePub reader disguised as a corporate email interface. Read your books locally and privately in your browser.">
+    <meta name="keywords" content="epub reader, stealth reader, browser epub, private reading, outbook">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph Tags for Social Previews -->
+    <meta property="og:title" content="Outbook - Stealth ePub Reader">
+    <meta property="og:description" content="A stealth ePub reader disguised as a corporate email client. Everything runs entirely in your browser with zero server uploads.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://outbook.online/">
+    <!-- Add a preview image to your repo and link it here for link sharing -->
+    <meta property="og:image" content="https://outbook.online/preview-image.png">
+
     <!-- Tailwind CSS for Outbook Styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -22,23 +36,17 @@
             }
         }
     </script>
-
-	<script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="Sachmer" data-description="Support me on Buy me a coffee!" data-message="Thank You! ☕
-	Thank you so much for stopping by and supporting the Outbook! Happy reading (or discreet browsing)! " data-color="#40DCA5" data-position="Right" data-x_margin="18" data-y_margin="18">
-	</script>
     
     <!-- ePub.js and JSZip (Required for ePub.js) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        /* Hide scrollbars for cleaner stealth look */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background-color: #c1c1c1; border-radius: 4px; }
         .dark ::-webkit-scrollbar-thumb { background-color: #555; }
         
-        /* Loading animation for pagination */
         .pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
     </style>
@@ -86,7 +94,7 @@
     <!-- MAIN 3-PANEL LAYOUT -->
     <div class="flex flex-1 overflow-hidden">
         
-        <!-- 1. LEFT SIDEBAR (Folders) -->
+        <!-- 1. LEFT SIDEBAR -->
         <nav class="w-56 border-r border-gray-200 dark:border-darkBorder bg-gray-50 dark:bg-darkPanel flex flex-col pt-2 shrink-0">
             <div class="px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer flex justify-between font-semibold text-outbook dark:text-blue-400 bg-gray-200 dark:bg-gray-700">
                 <span>📥 Inbox</span>
@@ -110,9 +118,8 @@
             </div>
         </nav>
 
-        <!-- 2. MIDDLE PANE (Inbox List / Bookshelf) -->
-        <div class="w-80 border-r border-gray-200 dark:border-darkBorder bg-white dark:bg-darkBg flex flex-col shrink-0 relative">
-            <!-- Disguised Upload Button -->
+        <!-- 2. MIDDLE PANE -->
+        <div id="middle-pane" style="width: 320px;" class="border-r border-gray-200 dark:border-darkBorder bg-white dark:bg-darkBg flex flex-col shrink-0 relative">
             <div class="p-3 border-b border-gray-200 dark:border-darkBorder flex justify-between items-center bg-gray-50 dark:bg-darkPanel z-10">
                 <label class="bg-outbook text-white px-4 py-1.5 rounded shadow-sm cursor-pointer hover:bg-blue-700 text-sm font-medium transition-colors">
                     + New Message
@@ -120,16 +127,15 @@
                 </label>
                 <span class="text-xs font-semibold text-gray-500 dark:text-gray-400" id="book-count">0/3 Items</span>
             </div>
-            
-            <div id="book-list" class="flex-1 overflow-y-auto">
-                <!-- Books will be injected here as emails -->
-            </div>
+            <div id="book-list" class="flex-1 overflow-y-auto"></div>
         </div>
 
-        <!-- 3. RIGHT PANE (Reading View / Active Email) -->
+        <!-- PHASE 5: DRAGGABLE RESIZER -->
+        <div id="resizer" class="w-1 bg-gray-200 dark:bg-darkBorder hover:bg-outbook dark:hover:bg-blue-400 cursor-col-resize shrink-0 transition-colors z-20"></div>
+
+        <!-- 3. RIGHT PANE -->
         <div class="flex-1 flex flex-col bg-white dark:bg-darkBg overflow-hidden relative">
             
-            <!-- Boss Key Cover (Hides the book when Esc is pressed) -->
             <div id="boss-key-cover" class="absolute inset-0 bg-white dark:bg-darkBg z-40 flex items-center justify-center">
                 <div class="text-center text-gray-400">
                     <div class="text-6xl mb-4">✉️</div>
@@ -138,7 +144,6 @@
                 </div>
             </div>
 
-            <!-- Email Toolbar (Actually Reader Controls) -->
             <div class="h-12 border-b border-gray-200 dark:border-darkBorder flex items-center px-4 space-x-4 bg-gray-50 dark:bg-darkPanel text-sm shrink-0 hidden" id="reader-toolbar">
                 <button onclick="navigatePage('prev')" class="px-3 py-1.5 hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-outbook dark:text-blue-400 font-medium" title="Previous Page (Key: J or Left Arrow)">
                     <span class="mr-1">↩️</span> Reply
@@ -147,9 +152,8 @@
                     <span class="mr-1">↪️</span> Forward
                 </button>
                 
-                <div class="h-6 w-px bg-gray-300 dark:bg-gray-600"></div> <!-- Divider -->
+                <div class="h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
 
-                <!-- Font Select -->
                 <select id="font-select" class="bg-transparent border border-gray-300 dark:border-darkBorder rounded px-2 py-1 outline-none dark:bg-darkBg text-gray-700 dark:text-gray-200 cursor-pointer">
                     <option value="Segoe UI">Segoe UI</option>
                     <option value="Georgia">Georgia</option>
@@ -157,21 +161,18 @@
                     <option value="Courier New">Courier</option>
                 </select>
 
-                <!-- Size Adjust -->
                 <div class="flex items-center border border-gray-300 dark:border-darkBorder rounded overflow-hidden">
-                    <button id="size-down" class="px-3 py-1 hover:bg-gray-200 dark:hover:bg-gray-600 border-r border-gray-300 dark:border-darkBorder" title="Decrease Font Size">A-</button>
-                    <button id="size-up" class="px-3 py-1 hover:bg-gray-200 dark:hover:bg-gray-600" title="Increase Font Size">A+</button>
+                    <button id="size-down" class="px-3 py-1 hover:bg-gray-200 dark:hover:bg-gray-600 border-r border-gray-300 dark:border-darkBorder">A-</button>
+                    <button id="size-up" class="px-3 py-1 hover:bg-gray-200 dark:hover:bg-gray-600">A+</button>
                 </div>
 
-                <!-- Spacing Adjust -->
-                <select id="spacing-select" class="bg-transparent border border-gray-300 dark:border-darkBorder rounded px-2 py-1 outline-none dark:bg-darkBg text-gray-700 dark:text-gray-200 cursor-pointer" title="Line Spacing">
+                <select id="spacing-select" class="bg-transparent border border-gray-300 dark:border-darkBorder rounded px-2 py-1 outline-none dark:bg-darkBg text-gray-700 dark:text-gray-200 cursor-pointer">
                     <option value="1.2">Spacing: Tight</option>
                     <option value="1.6" selected>Spacing: Normal</option>
                     <option value="2.0">Spacing: Loose</option>
                 </select>
             </div>
 
-            <!-- Email Header Data (Contains Progress Metrics) -->
             <div class="p-6 border-b border-gray-200 dark:border-darkBorder shrink-0 hidden" id="email-header">
                 <h2 class="text-2xl font-semibold mb-2 text-gray-900 dark:text-white" id="display-title">Book Title</h2>
                 <div class="text-sm flex items-center justify-between text-gray-600 dark:text-gray-400">
@@ -179,26 +180,21 @@
                         <div class="h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-lg">👤</div>
                         <span id="display-author" class="font-medium text-gray-900 dark:text-gray-200">Author Name</span>
                     </div>
-                    <!-- METRICS: Pagination & Percentage go here -->
                     <span id="display-status" class="font-semibold text-outbook dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full">
                         Draft saved
                     </span>
                 </div>
             </div>
 
-            <!-- ePub.js Rendering Container -->
             <div id="viewer" class="flex-1 overflow-hidden relative px-8 py-4 hidden"></div>
 
-            <!-- Fake Email Content Container (For About Info & Dummy Emails) -->
-            <div id="static-viewer" class="flex-1 overflow-y-auto p-8 text-gray-800 dark:text-gray-200 font-sans hidden">
-                <!-- Injected content goes here -->
-            </div>
+            <div id="static-viewer" class="flex-1 overflow-y-auto p-8 text-gray-800 dark:text-gray-200 font-sans hidden"></div>
         </div>
     </div>
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        // --- 1. MODAL & DISCLAIMER LOGIC ---
+        // --- 1. MODAL LOGIC ---
         const modal = document.getElementById('disclaimer-modal');
         const checkbox = document.getElementById('agree-checkbox');
         const acceptBtn = document.getElementById('accept-btn');
@@ -223,7 +219,7 @@
                 modal.classList.add('hidden');
             });
         } else {
-            modal.classList.add('hidden'); // Already agreed in past session
+            modal.classList.add('hidden'); 
         }
 
         // --- 2. DARK MODE TOGGLE ---
@@ -233,30 +229,95 @@
 
         themeToggle.addEventListener('click', () => {
             isDark = !isDark;
-            if (isDark) {
-                htmlElement.classList.add('dark');
-            } else {
-                htmlElement.classList.remove('dark');
-            }
-            updateEpubTheme(); // Push theme changes into the ePub iframe
+            htmlElement.classList.toggle('dark', isDark);
+            updateEpubTheme(); 
         });
 
-        // --- 3. CORE DATA & STATE ---
+        // --- 3. RESIZER LOGIC ---
+        const resizer = document.getElementById('resizer');
+        const middlePane = document.getElementById('middle-pane');
+        let isResizing = false;
+
+        resizer.addEventListener('mousedown', () => {
+            isResizing = true;
+            document.body.style.cursor = 'col-resize';
+            document.body.style.userSelect = 'none';
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isResizing) return;
+            const newWidth = e.clientX - 224; // Sidebar is w-56 (224px)
+            if (newWidth > 200 && newWidth < 600) {
+                middlePane.style.width = `${newWidth}px`;
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isResizing) {
+                isResizing = false;
+                document.body.style.cursor = 'default';
+                document.body.style.userSelect = '';
+                if (rendition) rendition.resize();
+            }
+        });
+
+        // --- 4. CORE DATA & INDEXEDDB CACHING ---
         const MAX_BOOKS = 3;
         let myBooks = [];
         let activeBook = null;
         let rendition = null;
-        let currentFontSize = 100; // Percentage
-        let isHidden = true; // Boss key state
+        let currentFontSize = 100; 
+        let isHidden = true; 
 
-        // Standard fake emails to populate the inbox
+        // IndexedDB Initialization
+        let db;
+        const request = indexedDB.open("OutbookDB", 1);
+        request.onupgradeneeded = (e) => {
+            db = e.target.result;
+            db.createObjectStore("books", { keyPath: "id" });
+        };
+        request.onsuccess = (e) => {
+            db = e.target.result;
+            loadBooksFromDB();
+        };
+
+        function loadBooksFromDB() {
+            const tx = db.transaction("books", "readonly");
+            const store = tx.objectStore("books");
+            const getAll = store.getAll();
+            
+            getAll.onsuccess = () => {
+                if(getAll.result) {
+                    myBooks = getAll.result.sort((a,b) => b.id - a.id);
+                    renderBookList();
+                }
+            };
+        }
+
+        function saveBookToDB(bookObj) {
+            const tx = db.transaction("books", "readwrite");
+            tx.objectStore("books").put(bookObj);
+        }
+
+        function deleteBook(id) {
+            myBooks = myBooks.filter(b => b.id !== id);
+            const tx = db.transaction("books", "readwrite");
+            tx.objectStore("books").delete(id);
+            localStorage.removeItem(`epub_cfi_${id}`); // Clear saved location
+            
+            if(activeBook && activeBook.outbookId === id) {
+                document.getElementById('static-viewer').innerHTML = '';
+                loadStaticContent(aboutOutbookData); 
+            }
+            renderBookList();
+        }
+
         const fakeEmails = [
-            { id: 'fake-1', author: 'IT Support', title: 'Action Required: System Update', dateStr: '09:14 AM', snippet: 'Please ensure your workstation is restarted by Friday for the new security patch.', type: 'email' },
-            { id: 'fake-2', author: 'HR Department', title: 'Q3 Townhall Meeting Notes', dateStr: 'Yesterday', snippet: 'Thank you to everyone who attended the Q3 all-hands. The presentation is attached.', type: 'email' },
+            { id: 'fake-1', author: 'IT Support', title: 'Action Required: System Update', dateStr: '09:14 AM', snippet: 'Please ensure your workstation is restarted by Friday.', type: 'email' },
+            { id: 'fake-2', author: 'HR Department', title: 'Q3 Townhall Meeting Notes', dateStr: 'Yesterday', snippet: 'Thank you to everyone who attended the Q3 all-hands.', type: 'email' },
             { id: 'fake-3', author: 'Calendar', title: 'Weekly Standup', dateStr: 'Mon', snippet: 'Meeting reminder: Weekly Standup at 10:00 AM.', type: 'email' }
         ];
 
-        // "About Outbook" system document
         const aboutOutbookData = {
             id: 'about-outbook',
             author: 'Outbook Administration',
@@ -277,28 +338,26 @@
                     </div>
 
                     <div class="bg-gray-100 dark:bg-gray-800 rounded p-4 mb-6 border border-gray-200 dark:border-gray-700">
-                        <h4 class="font-bold mb-2">⚠️ Performance Guidelines</h4>
-                        <ul class="list-disc pl-5 text-sm space-y-1">
-                            <li><strong>Recommended Size:</strong> Best suited for text-based ePubs under <strong>2MB - 5MB</strong>.</li>
-                            <li><strong>Heavy Textbooks:</strong> Massive files packed with high-resolution images or complex nested tables may cause the browser tab to lag or freeze.</li>
-                        </ul>
-                    </div>
-
-                    <div class="bg-gray-100 dark:bg-gray-800 rounded p-4 border border-gray-200 dark:border-gray-700">
                         <h4 class="font-bold mb-2">⌨️ Navigation Cheat Sheet</h4>
                         <table class="w-full text-sm text-left">
-                            <tr class="border-b dark:border-gray-700"><th class="py-2 w-1/3">Action</th><th class="py-2">Shortcut / Control</th></tr>
                             <tr class="border-b dark:border-gray-700"><td class="py-2">Upload Book</td><td class="py-2">Click <code>+ New Message</code></td></tr>
                             <tr class="border-b dark:border-gray-700"><td class="py-2">Next Page</td><td class="py-2"><code>Forward</code> button or <code>K</code> key / <code>→</code> key</td></tr>
                             <tr class="border-b dark:border-gray-700"><td class="py-2">Previous Page</td><td class="py-2"><code>Reply</code> button or <code>J</code> key / <code>←</code> key</td></tr>
                             <tr><td class="py-2 text-outbook dark:text-blue-400 font-bold">Boss Key (Panic)</td><td class="py-2 font-bold">Press <code>Escape</code></td></tr>
                         </table>
                     </div>
+
+                    <!-- PHASE 4: BMC WIDGET MOVED HERE -->
+                    <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+                        <h4 class="font-bold mb-2">☕ Support Outbook</h4>
+                        <p class="text-sm mb-4 text-gray-600 dark:text-gray-400">If you like this project and want to keep it alive and ad-free, consider buying me a coffee!</p>
+                        <div id="bmc-container"></div>
+                    </div>
                 </div>
             `
         };
 
-        // --- 4. UPLOAD & LIST RENDERING ---
+        // --- 5. UPLOAD & LIST RENDERING ---
         const uploadInput = document.getElementById('book-upload');
         const bookListEl = document.getElementById('book-list');
         const bookCountEl = document.getElementById('book-count');
@@ -307,18 +366,16 @@
         const ePubViewer = document.getElementById('viewer');
         const staticViewer = document.getElementById('static-viewer');
 
-        uploadInput.addEventListener('change', async (e) => {
+        uploadInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
 
-            // Enforce limit
             if (myBooks.length >= MAX_BOOKS) {
                 alert(`Inbox Limit Reached! You can only store ${MAX_BOOKS} items at a time.`);
                 uploadInput.value = ''; 
                 return;
             }
 
-            // Parse metadata
             const reader = new FileReader();
             reader.onload = function(event) {
                 const bookData = event.target.result;
@@ -329,14 +386,15 @@
                         id: Date.now().toString(),
                         title: meta.title || file.name.replace('.epub', ''),
                         author: meta.creator || "Unknown Sender",
-                        data: bookData,
+                        data: bookData, // Caching the ArrayBuffer directly
                         dateStr: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
                         type: 'epub'
                     };
                     
-                    myBooks.unshift(newBookEntry); // Add to top
+                    myBooks.unshift(newBookEntry); 
+                    saveBookToDB(newBookEntry); 
                     renderBookList();
-                    loadBook(newBookEntry); // Auto-open
+                    loadBook(newBookEntry); 
                     uploadInput.value = ''; 
                 });
             };
@@ -348,34 +406,35 @@
             inboxBadge.innerText = myBooks.length + fakeEmails.length;
             bookListEl.innerHTML = '';
             
-            // Render Real Uploaded Books
-            myBooks.forEach(book => {
-                bookListEl.appendChild(createListItem(book, true));
-            });
-
-            // Render Fake Emails
-            fakeEmails.forEach(email => {
-                bookListEl.appendChild(createListItem(email, false));
-            });
+            myBooks.forEach(book => bookListEl.appendChild(createListItem(book, true)));
+            fakeEmails.forEach(email => bookListEl.appendChild(createListItem(email, false)));
         }
 
         function createListItem(itemData, isBook) {
             const item = document.createElement('div');
-            item.className = "email-item p-3 border-b border-gray-200 dark:border-darkBorder hover:bg-gray-100 dark:hover:bg-darkPanel cursor-pointer border-l-4 border-l-transparent bg-white dark:bg-darkBg transition-colors";
+            item.className = "email-item p-3 border-b border-gray-200 dark:border-darkBorder hover:bg-gray-100 dark:hover:bg-darkPanel cursor-pointer border-l-4 border-l-transparent bg-white dark:bg-darkBg transition-colors group";
             item.dataset.id = itemData.id;
             
             const titleClass = isBook ? "font-semibold text-outbook dark:text-blue-400" : "text-gray-700 dark:text-gray-300";
             const snippetText = isBook ? "Draft saved. Review required." : itemData.snippet;
             
             item.innerHTML = `
-                <div class="flex justify-between items-baseline mb-1">
+                <div class="flex justify-between items-baseline mb-1 relative">
                     <span class="${isBook ? 'font-bold' : 'font-medium'} text-[15px] truncate pr-2 text-gray-900 dark:text-gray-100">${itemData.author}</span>
-                    <span class="text-xs ${isBook ? 'text-outbook dark:text-blue-400 font-semibold' : 'text-gray-500'} shrink-0">${itemData.dateStr}</span>
+                    <span class="text-xs ${isBook ? 'text-outbook dark:text-blue-400 font-semibold' : 'text-gray-500'} shrink-0 group-hover:hidden">${itemData.dateStr}</span>
+                    ${isBook ? `<button class="hidden group-hover:block text-red-500 text-xs shrink-0 delete-btn z-10" title="Delete Book">🗑️</button>` : ''}
                 </div>
                 <div class="text-sm ${titleClass} truncate mb-1">${itemData.title}</div>
                 <div class="text-sm text-gray-500 dark:text-gray-400 truncate">${snippetText}</div>
             `;
             
+            if(isBook) {
+                item.querySelector('.delete-btn').addEventListener('click', (e) => {
+                    e.stopPropagation(); 
+                    deleteBook(itemData.id);
+                });
+            }
+
             item.onclick = () => {
                 if (isBook) loadBook(itemData);
                 else loadStaticContent(itemData);
@@ -383,12 +442,11 @@
             return item;
         }
 
-        // Sidebar "About Outbook" button hook
         document.getElementById('nav-about').addEventListener('click', () => {
             loadStaticContent(aboutOutbookData);
         });
 
-        // --- 5. RENDER CONTENT VIEWS ---
+        // --- 6. RENDER CONTENT VIEWS & STATE TRACKING ---
         function setUIState(activeId) {
             document.querySelectorAll('.email-item').forEach(el => el.classList.replace('border-l-outbook', 'border-l-transparent'));
             const activeItem = document.querySelector(`.email-item[data-id="${activeId}"]`);
@@ -401,8 +459,6 @@
 
         function loadStaticContent(dataObj) {
             setUIState(dataObj.id);
-            
-            // Hide epub tools & viewer, show static viewer
             document.getElementById('reader-toolbar').classList.add('hidden');
             ePubViewer.classList.add('hidden');
             staticViewer.classList.remove('hidden');
@@ -410,33 +466,45 @@
             document.getElementById('display-title').innerText = dataObj.title;
             document.getElementById('display-author').innerText = dataObj.author;
             document.getElementById('display-status').innerHTML = 'Received';
-            document.getElementById('display-status').className = "text-gray-500 dark:text-gray-400"; // Reset styles
+            document.getElementById('display-status').className = "text-gray-500 dark:text-gray-400"; 
             
-            // Cleanup ePub memory if running
             if (activeBook) { 
                 activeBook.destroy(); 
                 activeBook = null; rendition = null;
             }
             
-            // Inject content (About page or Fake Email)
             if (dataObj.type === 'system') {
                 staticViewer.innerHTML = dataObj.content;
+                
+                // Safely inject BMC script tag into the container (innerHTML strips script execution)
+                if (dataObj.id === 'about-outbook' && !document.getElementById('bmc-script-tag')) {
+                    const bmcContainer = document.getElementById('bmc-container');
+                    if(bmcContainer) {
+                        const script = document.createElement('script');
+                        script.id = 'bmc-script-tag';
+                        script.type = 'text/javascript';
+                        script.src = 'https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js';
+                        script.dataset.name = 'bmc-button';
+                        script.dataset.slug = 'Sachmer';
+                        script.dataset.color = '#FFDD00';
+                        script.dataset.emoji = '';
+                        script.dataset.font = 'Cookie';
+                        script.dataset.text = 'Buy me a coffee';
+                        script.dataset.outlineColor = '#000000';
+                        script.dataset.fontColor = '#000000';
+                        script.dataset.coffeeColor = '#ffffff';
+                        bmcContainer.appendChild(script);
+                    }
+                }
             } else {
                 staticViewer.innerHTML = `
-                    <div class="max-w-2xl">
-                        <p class="mb-4">Hi Team,</p>
-                        <p class="mb-4">${dataObj.snippet}</p>
-                        <p class="mb-4">Please let me know if you have any questions.</p>
-                        <p>Best regards,<br>${dataObj.author}</p>
-                    </div>
+                    <div class="max-w-2xl"><p class="mb-4">Hi Team,</p><p class="mb-4">${dataObj.snippet}</p><p>Best regards,<br>${dataObj.author}</p></div>
                 `;
             }
         }
 
         function loadBook(bookObj) {
             setUIState(bookObj.id);
-            
-            // Show epub tools & viewer, hide static viewer
             document.getElementById('reader-toolbar').classList.remove('hidden');
             ePubViewer.classList.remove('hidden');
             staticViewer.classList.add('hidden');
@@ -448,36 +516,37 @@
             statusEl.className = "font-semibold text-outbook dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full text-xs pulse";
             statusEl.innerHTML = "Calculating pages...";
             
-            // Cleanup previous
             if (activeBook) { activeBook.destroy(); }
             ePubViewer.innerHTML = '';
 
-            // Initialize ePub
             activeBook = ePub(bookObj.data);
+            activeBook.outbookId = bookObj.id; // Tag for persistence tracking
+
             rendition = activeBook.renderTo("viewer", {
                 width: "100%", height: "100%", spread: "none"
             });
 
-            rendition.display();
+            // PHASE 5: Retrieve Persistent Position
+            const savedLocation = localStorage.getItem(`epub_cfi_${bookObj.id}`);
+            if (savedLocation) {
+                rendition.display(savedLocation);
+            } else {
+                rendition.display();
+            }
             
-            rendition.on("rendered", () => {
-                updateEpubTheme(); applyFormatting();
-            });
+            rendition.on("rendered", () => { updateEpubTheme(); applyFormatting(); });
 
-            // Handle Progress Metrics & Pagination
             activeBook.ready.then(() => {
-                // Generate locations to calculate accurate percentages (1024 characters per page approximation)
                 return activeBook.locations.generate(1024);
             }).then(() => {
-                statusEl.classList.remove('pulse'); // Remove loading animation
-                updateProgressMetric(rendition.location); // Initial update
+                statusEl.classList.remove('pulse'); 
+                updateProgressMetric(rendition.location); 
             });
 
             rendition.on("relocated", (location) => {
                 updateProgressMetric(location);
             });
 
-            // Pass keyboard events from iframe
             rendition.on("keyup", (e) => {
                 if (e.key === 'ArrowRight' || e.key === 'j' || e.key === 'J') navigatePage('next');
                 if (e.key === 'ArrowLeft' || e.key === 'k' || e.key === 'K') navigatePage('prev');
@@ -488,11 +557,11 @@
         function updateProgressMetric(location) {
             if(!location || !activeBook || !activeBook.locations.length()) return;
             
-            // Calculate percentage from CFI
+            // PHASE 5: Save Position
+            localStorage.setItem(`epub_cfi_${activeBook.outbookId}`, location.start.cfi);
+            
             const percentageFromLoc = activeBook.locations.percentageFromCfi(location.start.cfi);
             const percentage = Math.round(percentageFromLoc * 100);
-            
-            // Calculate current page based on generated locations
             const currentPage = activeBook.locations.locationFromCfi(location.start.cfi);
             const totalPages = activeBook.locations.total;
 
@@ -500,7 +569,7 @@
             statusEl.innerHTML = `${percentage}% Complete &nbsp;•&nbsp; Page ${currentPage} of ${totalPages}`;
         }
 
-        // --- 6. READER CUSTOMIZATION ---
+        // --- 7. READER CUSTOMIZATION & STEALTH ---
         function updateEpubTheme() {
             if (!rendition) return;
             const bgColor = isDark ? '#202020' : '#ffffff';
@@ -532,11 +601,9 @@
 
         document.getElementById('font-select').addEventListener('change', applyFormatting);
         document.getElementById('spacing-select').addEventListener('change', applyFormatting);
-        
         document.getElementById('size-up').addEventListener('click', () => { currentFontSize += 10; applyFormatting(); });
         document.getElementById('size-down').addEventListener('click', () => { currentFontSize = Math.max(50, currentFontSize - 10); applyFormatting(); });
 
-        // --- 7. STEALTH & KEYBOARD NAV ---
         function navigatePage(direction) {
             if (rendition && !isHidden) {
                 if (direction === 'next') rendition.next();
@@ -553,7 +620,7 @@
                     if (myBooks.length > 0 || !staticViewer.classList.contains('hidden')) {
                         bossKeyCover.classList.add('hidden');
                     } else {
-                        isHidden = true; // Don't unhide if totally empty
+                        isHidden = true; 
                     }
                 }
             }
@@ -564,10 +631,7 @@
             }
         });
 
-        // Initialize UI
         renderBookList();
-
     </script>
-
 </body>
 </html>
