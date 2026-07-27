@@ -23,13 +23,10 @@
         }
     </script>
 
-	<!-- 
 	<script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="Sachmer" data-description="Support me on Buy me a coffee!" data-message="Thank You! ☕
 	Thank you so much for stopping by and supporting the Outbook! Happy reading (or discreet browsing)! " data-color="#40DCA5" data-position="Right" data-x_margin="18" data-y_margin="18">
 	</script>
-	-->
-
-	
+    
     <!-- ePub.js and JSZip (Required for ePub.js) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
@@ -53,7 +50,7 @@
         <div class="bg-white dark:bg-darkPanel p-6 rounded-lg max-w-md shadow-xl border dark:border-darkBorder">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Terms of Use & Disclaimer</h3>
             <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">
-                This application is a 100% client-side reader tool. <strong>No files are ed to any server.</strong> 
+                This application is a 100% client-side reader tool. <strong>No files are uploaded to any server.</strong> 
                 By proceeding, you confirm that you have obtained your ePub files legally and that they do not contain prohibited content.
             </p>
             <label class="flex items-center space-x-2 mb-6 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
@@ -115,11 +112,11 @@
 
         <!-- 2. MIDDLE PANE (Inbox List / Bookshelf) -->
         <div class="w-80 border-r border-gray-200 dark:border-darkBorder bg-white dark:bg-darkBg flex flex-col shrink-0 relative">
-            <!-- Disguised  Button -->
+            <!-- Disguised Upload Button -->
             <div class="p-3 border-b border-gray-200 dark:border-darkBorder flex justify-between items-center bg-gray-50 dark:bg-darkPanel z-10">
                 <label class="bg-outbook text-white px-4 py-1.5 rounded shadow-sm cursor-pointer hover:bg-blue-700 text-sm font-medium transition-colors">
                     + New Message
-                    <input type="file" id="book-" accept=".epub" class="hidden">
+                    <input type="file" id="book-upload" accept=".epub" class="hidden">
                 </label>
                 <span class="text-xs font-semibold text-gray-500 dark:text-gray-400" id="book-count">0/3 Items</span>
             </div>
@@ -291,13 +288,14 @@
                         <h4 class="font-bold mb-2">⌨️ Navigation Cheat Sheet</h4>
                         <table class="w-full text-sm text-left">
                             <tr class="border-b dark:border-gray-700"><th class="py-2 w-1/3">Action</th><th class="py-2">Shortcut / Control</th></tr>
-                            <tr class="border-b dark:border-gray-700"><td class="py-2"> Book</td><td class="py-2">Click <code>+ New Message</code></td></tr>
+                            <tr class="border-b dark:border-gray-700"><td class="py-2">Upload Book</td><td class="py-2">Click <code>+ New Message</code></td></tr>
                             <tr class="border-b dark:border-gray-700"><td class="py-2">Next Page</td><td class="py-2"><code>Forward</code> button or <code>K</code> key / <code>→</code> key</td></tr>
                             <tr class="border-b dark:border-gray-700"><td class="py-2">Previous Page</td><td class="py-2"><code>Reply</code> button or <code>J</code> key / <code>←</code> key</td></tr>
                             <tr><td class="py-2 text-outbook dark:text-blue-400 font-bold">Boss Key (Panic)</td><td class="py-2 font-bold">Press <code>Escape</code></td></tr>
                         </table>
                     </div>
                 </div>
+            `
         };
 
         // --- 4. UPLOAD & LIST RENDERING ---
