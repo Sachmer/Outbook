@@ -16,3 +16,5 @@ Outbook is a client-side reading tool built for browsing local .epub files insid
 - Keyboard Navigation: Use J and K shortcuts to flip pages seamlessly.
 
 - Local Persistence: Remembers your exact reading position so you never lose your spot.
+
+ [Try it here http://outbook.online/](http://outbook.online/)
