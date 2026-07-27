@@ -1,5 +1,5 @@
-# **Outbook**
-## A stealth ePub reader disguised as a corporate email client.
+# **Outbook**  
+A stealth ePub reader disguised as a corporate email client.
 
 **What it is**  
 Outbook is a client-side reading tool built for browsing local .epub files inside a familiar 3-panel interface (Left navigation, Middle inbox list, and Right reading pane). Everything runs entirely in your browser with zero server uploads.
