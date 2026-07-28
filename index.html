@@ -76,12 +76,14 @@
         </div>
     </div>
 
-    <!-- TOP HEADER -->
-    <header class="h-12 bg-outbook text-white flex items-center justify-between px-4 shrink-0">
+<!-- TOP HEADER -->
+    <header class="h-12 bg-outbook text-white flex items-center justify-between px-4 shrink-0 z-20">
         <div class="flex items-center space-x-4">
+            <!-- Hamburger Toggle -->
+            <button id="sidebar-toggle" class="hover:bg-white/20 p-1.5 rounded text-xl leading-none transition-colors" title="Toggle Sidebar">☰</button>
             <div class="font-semibold text-lg flex items-center space-x-2 cursor-pointer">
                 <span class="text-xl">🕮</span>
-                <span>Outbook</span>
+                <span class="sidebar-text">Outbook</span>
             </div>
         </div>
         <div class="flex-1 max-w-xl px-4 hidden md:block">
@@ -96,64 +98,113 @@
         </div>
     </header>
 
+    <!-- PHASE 10: OUTLOOK RIBBON TOOLBAR -->
+    <div class="bg-gray-50 dark:bg-darkPanel border-b border-gray-200 dark:border-darkBorder shrink-0 flex flex-col w-full z-10 hidden md:flex">
+        <!-- Menu Bar -->
+        <div class="flex items-center space-x-4 px-4 py-1 text-sm text-gray-600 dark:text-gray-300 border-b border-gray-200 dark:border-darkBorder">
+            <span class="cursor-pointer hover:text-outbook">File</span>
+            <span class="cursor-pointer text-outbook font-semibold border-b-2 border-outbook pb-1 -mb-[5px]">Home</span>
+            <span class="cursor-pointer hover:text-outbook">View</span>
+            <span class="cursor-pointer hover:text-outbook">Help</span>
+        </div>
+        <!-- Action Ribbon -->
+        <div class="flex items-center p-2 space-x-4 text-xs text-gray-700 dark:text-gray-300">
+            <!-- Group 1: Compose -->
+            <div class="flex items-center border-r pr-4 border-gray-300 dark:border-gray-600">
+                <label class="flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-700 p-1 rounded cursor-pointer min-w-[50px]">
+                    <span class="text-lg mb-1">📝</span>
+                    <span>New</span>
+                    <input type="file" id="ribbon-book-upload" accept=".epub,application/epub+zip" class="hidden">
+                </label>
+            </div>
+            <!-- Group 2: Actions -->
+            <div class="flex items-center space-x-1 border-r pr-4 border-gray-300 dark:border-gray-600">
+                <button class="flex flex-col items-center p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 min-w-[50px]">
+                    <span class="text-lg mb-1">🗑️</span><span>Delete</span>
+                </button>
+                <button class="flex flex-col items-center p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 min-w-[50px]">
+                    <span class="text-lg mb-1">📦</span><span>Archive</span>
+                </button>
+                <button class="flex flex-col items-center p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 min-w-[50px]">
+                    <span class="text-lg mb-1">🚫</span><span>Junk</span>
+                </button>
+            </div>
+            <!-- Group 3: Respond -->
+            <div class="flex items-center space-x-1 border-r pr-4 border-gray-300 dark:border-gray-600">
+                <button class="flex flex-col items-center p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 min-w-[50px]">
+                    <span class="text-lg mb-1">↩️</span><span>Reply</span>
+                </button>
+                <button class="flex flex-col items-center p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 min-w-[50px]">
+                    <span class="text-lg mb-1">↪️</span><span>Forward</span>
+                </button>
+            </div>
+            <!-- Group 4: Tags & Utilities -->
+            <div class="flex items-center space-x-1">
+                <button class="flex flex-col items-center p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 min-w-[50px]">
+                    <span class="text-lg mb-1">🏷️</span><span>Tags</span>
+                </button>
+                <button class="flex flex-col items-center p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 min-w-[50px]">
+                    <span class="text-lg mb-1">🖨️</span><span>Print</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- MAIN 3-PANEL LAYOUT -->
     <div class="flex flex-1 overflow-hidden">
         
-        <!-- 1. LEFT SIDEBAR (Expanded and scrollable) -->
-        <nav class="w-56 border-r border-gray-200 dark:border-darkBorder bg-gray-50 dark:bg-darkPanel flex flex-col pt-2 shrink-0 overflow-y-auto">
+       <!-- 1. LEFT SIDEBAR -->
+        <nav id="nav-sidebar" class="w-56 border-r border-gray-200 dark:border-darkBorder bg-gray-50 dark:bg-darkPanel flex flex-col pt-2 shrink-0 overflow-y-auto transition-all duration-300">
             
             <!-- Favorites Section -->
-            <div class="px-4 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400 mt-2 mb-1 flex items-center">
-                <span class="mr-2 opacity-60">⌄</span> Favorites
+            <div id="header-favorites" class="px-4 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400 mt-2 mb-1 flex items-center cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 group">
+                <span class="arrow mr-2 opacity-60 transition-transform duration-200 inline-block">⌄</span> 
+                <span class="sidebar-text">Favorites</span>
             </div>
-            <div class="px-4 py-2 cursor-pointer flex justify-between font-semibold text-outbook dark:text-blue-400 bg-gray-200 dark:bg-gray-700">
-                <div class="flex items-center"><span class="mr-2 opacity-70">📥</span> Inbox</div>
-                <span class="text-xs bg-outbook text-white px-1.5 rounded-full flex items-center" id="inbox-badge">0</span>
-            </div>
-            <div class="px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer flex justify-between text-gray-700 dark:text-gray-300">
-                <div class="flex items-center"><span class="mr-2 opacity-70">🗑️</span> Deleted</div>
-            </div>
-            <div class="px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer flex justify-between text-gray-700 dark:text-gray-300">
-                <div class="flex items-center"><span class="mr-2 opacity-70">👤</span> Robin Counts</div>
-                <span class="text-xs text-outbook dark:text-blue-400 font-semibold">4</span>
-            </div>
-            <div class="px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer flex justify-between text-gray-700 dark:text-gray-300">
-                <div class="flex items-center"><span class="mr-2 opacity-70">📁</span> Annual Budget</div>
+            <div id="list-favorites" class="overflow-hidden">
+                <div class="px-4 py-2 cursor-pointer flex justify-between font-semibold text-outbook dark:text-blue-400 bg-gray-200 dark:bg-gray-700">
+                    <div class="flex items-center"><span class="mr-2 opacity-70">📥</span> <span class="sidebar-text">Inbox</span></div>
+                    <span class="sidebar-text text-xs bg-outbook text-white px-1.5 rounded-full flex items-center" id="inbox-badge">0</span>
+                </div>
+                <div class="px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer flex justify-between text-gray-700 dark:text-gray-300">
+                    <div class="flex items-center"><span class="mr-2 opacity-70">🗑️</span> <span class="sidebar-text">Deleted</span></div>
+                </div>
+                <div class="px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer flex justify-between text-gray-700 dark:text-gray-300">
+                    <div class="flex items-center"><span class="mr-2 opacity-70">👤</span> <span class="sidebar-text truncate max-w-[120px]">Robin Counts</span></div>
+                    <span class="sidebar-text text-xs text-outbook dark:text-blue-400 font-semibold">4</span>
+                </div>
+                <div class="px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer flex justify-between text-gray-700 dark:text-gray-300">
+                    <div class="flex items-center"><span class="mr-2 opacity-70">📁</span> <span class="sidebar-text truncate max-w-[120px]">Annual Budget</span></div>
+                </div>
             </div>
 
             <!-- Folders Section -->
-            <div class="px-4 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400 mt-4 mb-1 flex items-center">
-                <span class="mr-2 opacity-60">⌄</span> Folders
+            <div id="header-folders" class="px-4 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400 mt-4 mb-1 flex items-center cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 group">
+                <span class="arrow mr-2 opacity-60 transition-transform duration-200 inline-block">⌄</span> 
+                <span class="sidebar-text">Folders</span>
             </div>
-            <div class="px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer flex justify-between text-gray-700 dark:text-gray-300">
-                <div class="flex items-center"><span class="mr-2 opacity-70">📥</span> Inbox</div>
-                <span class="text-xs font-semibold text-outbook dark:text-blue-400">17</span>
-            </div>
-            <div class="px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer flex justify-between text-gray-700 dark:text-gray-300">
-                <div class="flex items-center"><span class="mr-2 opacity-70">🚫</span> Junk</div>
-            </div>
-            <div class="px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer flex justify-between text-gray-700 dark:text-gray-300">
-                <div class="flex items-center"><span class="mr-2 opacity-70">📤</span> Sent</div>
-            </div>
-            <div class="px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer flex justify-between text-gray-700 dark:text-gray-300">
-                <div class="flex items-center"><span class="mr-2 opacity-70">🗑️</span> Deleted</div>
-            </div>
-            <div class="px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer flex justify-between text-gray-700 dark:text-gray-300">
-                <div class="flex items-center"><span class="mr-2 opacity-70">📦</span> Archive</div>
-            </div>
-            <div class="px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer flex justify-between text-gray-700 dark:text-gray-300">
-                <div class="flex items-center ml-4"><span class="mr-2 opacity-70">📁</span> Annual Budget</div>
-            </div>
-            <div class="px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer flex justify-between text-gray-700 dark:text-gray-300">
-                <div class="flex items-center ml-4"><span class="mr-2 opacity-70">📁</span> Project Pink</div>
-            </div>
-            <div class="px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer flex justify-between text-outbook dark:text-blue-400 font-medium">
-                <div class="flex items-center">New folder</div>
+            <div id="list-folders" class="overflow-hidden">
+                <div class="px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer flex justify-between text-gray-700 dark:text-gray-300">
+                    <div class="flex items-center"><span class="mr-2 opacity-70">📥</span> <span class="sidebar-text">Inbox</span></div>
+                    <span class="sidebar-text text-xs font-semibold text-outbook dark:text-blue-400">17</span>
+                </div>
+                <div class="px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer flex justify-between text-gray-700 dark:text-gray-300">
+                    <div class="flex items-center"><span class="mr-2 opacity-70">🚫</span> <span class="sidebar-text">Junk</span></div>
+                </div>
+                <div class="px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer flex justify-between text-gray-700 dark:text-gray-300">
+                    <div class="flex items-center"><span class="mr-2 opacity-70">📤</span> <span class="sidebar-text">Sent</span></div>
+                </div>
+                <div class="px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer flex justify-between text-gray-700 dark:text-gray-300">
+                    <div class="flex items-center"><span class="mr-2 opacity-70">🗑️</span> <span class="sidebar-text">Deleted</span></div>
+                </div>
+                <div class="px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer flex justify-between text-gray-700 dark:text-gray-300">
+                    <div class="flex items-center"><span class="mr-2 opacity-70">📦</span> <span class="sidebar-text">Archive</span></div>
+                </div>
             </div>
             
             <div class="mt-auto mb-2 border-t border-gray-200 dark:border-darkBorder pt-2 shrink-0">
                 <div id="nav-about" class="px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer flex items-center text-gray-600 dark:text-gray-400 font-medium">
-                    <span class="mr-2">ℹ️</span> About Outbook
+                    <span class="mr-2">ℹ️</span> <span class="sidebar-text">About Outbook</span>
                 </div>
             </div>
         </nav>
@@ -437,13 +488,21 @@
         const ePubViewer = document.getElementById('viewer');
         const staticViewer = document.getElementById('static-viewer');
 
-        uploadInput.addEventListener('change', (e) => {
+// Unified File Upload Handler
+        function handleBookUpload(e) {
             const file = e.target.files[0];
             if (!file) return;
+            
+            // Phase 8 constraint validation fallback
+            if (!file.name.toLowerCase().endsWith('.epub') && file.type !== 'application/epub+zip') {
+                alert('Invalid file format. Outbook only supports .epub files.');
+                e.target.value = '';
+                return;
+            }
 
             if (myBooks.length >= MAX_BOOKS) {
                 alert(`Inbox Limit Reached! You can only store ${MAX_BOOKS} items at a time.`);
-                uploadInput.value = ''; 
+                e.target.value = ''; 
                 return;
             }
 
@@ -460,18 +519,22 @@
                         data: bookData, 
                         dateStr: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
                         type: 'epub',
-                        isUnread: true // Newly uploaded books start as unread
+                        isUnread: true 
                     };
                     
                     myBooks.unshift(newBookEntry); 
                     saveBookToDB(newBookEntry); 
                     renderBookList();
                     loadBook(newBookEntry); 
-                    uploadInput.value = ''; 
+                    e.target.value = ''; 
                 });
             };
             reader.readAsArrayBuffer(file);
-        });
+        }
+
+        document.getElementById('book-upload').addEventListener('change', handleBookUpload);
+        const ribbonUpload = document.getElementById('ribbon-book-upload');
+        if (ribbonUpload) ribbonUpload.addEventListener('change', handleBookUpload);
 
         function renderBookList() {
             bookCountEl.innerText = `${myBooks.length}/${MAX_BOOKS} Items`;
@@ -662,6 +725,33 @@
             updateEpubTheme(); 
         }
 
+        // --- 8. SIDEBAR & ACCORDION INTERACTIVITY ---
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const navSidebar = document.getElementById('nav-sidebar');
+        const sidebarTexts = document.querySelectorAll('.sidebar-text');
+        
+        // Toggle Sidebar Width
+        sidebarToggle.addEventListener('click', () => {
+            navSidebar.classList.toggle('w-56');
+            navSidebar.classList.toggle('w-16'); // Compact width
+            sidebarTexts.forEach(el => el.classList.toggle('hidden'));
+        });
+
+        // Toggle Accordion Folders
+        function setupAccordion(headerId, listId) {
+            const header = document.getElementById(headerId);
+            const list = document.getElementById(listId);
+            const arrow = header.querySelector('.arrow');
+            
+            header.addEventListener('click', () => {
+                list.classList.toggle('hidden');
+                arrow.style.transform = list.classList.contains('hidden') ? 'rotate(-90deg)' : 'rotate(0deg)';
+            });
+        }
+        
+        setupAccordion('header-favorites', 'list-favorites');
+        setupAccordion('header-folders', 'list-folders');
+        
         document.getElementById('font-select').addEventListener('change', applyFormatting);
         document.getElementById('spacing-select').addEventListener('change', applyFormatting);
         document.getElementById('size-up').addEventListener('click', () => { currentFontSize += 10; applyFormatting(); });
@@ -695,6 +785,6 @@
         });
 
         renderBookList();
-    </script>
+    </script>    
 </body>
 </html>
