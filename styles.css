@@ -1,0 +1,16 @@
+/* ==========================================================================
+   Outbook — styles.css
+   Custom styles layered on top of Tailwind (loaded via CDN in index.html).
+   ========================================================================== */
+
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+/* Slim, theme-aware scrollbars */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background-color: #c1c1c1; border-radius: 4px; }
+.dark ::-webkit-scrollbar-thumb { background-color: #555; }
+
+/* "Calculating pages..." status pulse */
+.pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
