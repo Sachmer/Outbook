@@ -4,7 +4,6 @@ A local-first ePub reader disguised as a familiar inbox. No uploads, no accounts
 
 ## Features
 - **Corporate Disguise:** Redesigned interface featuring Office-style ribbon toolbars, favorites, and realistic dummy inbox items with literature easter eggs.
-- **Boss Key:** Hit `Escape` instantly to mask your reading view behind a generic placeholder screen.
 - **Draggable Split-Pane:** Custom-resize your middle inbox pane up to 75% of your screen width. Works flawlessly alongside the collapsible sidebar.
 - **Customizer Toolbar:** Adjust fonts (Segoe UI, Georgia, Inter, Courier), font sizing (A- / A+), and line spacing on the fly.
 - **Enhanced Reading Metrics:** Real-time page counters, exact completion percentages, and a visual progress bar fill beneath the header.
