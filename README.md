@@ -17,7 +17,6 @@ A local-first ePub reader disguised as a familiar inbox. No uploads, no accounts
 ## Legal
 Not affiliated with Microsoft or Outlook.
 
-## 
 ## Support the Project
 If you enjoy using Outbook and want to support its ongoing development, feel free to buy me a coffee!
 
