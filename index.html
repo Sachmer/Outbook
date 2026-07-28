@@ -388,12 +388,22 @@
                     <h3 class="text-xl font-bold mb-4">Welcome to your new reading environment.</h3>
                     <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">This tool is designed to allow distraction-free, private reading disguised as a corporate email interface.</p>
                     
-                    <div class="bg-gray-100 dark:bg-gray-800 rounded p-4 mb-6 border border-gray-200 dark:border-gray-700">
+                    <div class="bg-gray-100 dark:bg-gray-800 rounded p-4 mb-4 border border-gray-200 dark:border-gray-700">
                         <h4 class="font-bold mb-2">🔒 Architecture Overview</h4>
                         <ul class="list-disc pl-5 text-sm space-y-1">
                             <li><strong>100% Client-Side Processing:</strong> Books are rendered entirely within your browser memory.</li>
                             <li><strong>Zero Server Storage:</strong> Your ePub files never leave your computer. We track nothing.</li>
                         </ul>
+                    </div>
+
+                    <div class="bg-yellow-50 dark:bg-yellow-900/20 rounded p-4 mb-4 border border-yellow-200 dark:border-yellow-800/50 text-sm">
+                        <h4 class="font-bold mb-1 text-yellow-800 dark:text-yellow-300">⚖️ Terms of Use & Legal Disclaimer</h4>
+                        <p class="text-yellow-700 dark:text-yellow-400">By using this application, you confirm that you have obtained your ePub files legally and take full responsibility for all loaded content. No illegal or unauthorized content should be uploaded.</p>
+                    </div>
+
+                    <div class="bg-blue-50 dark:bg-blue-900/20 rounded p-4 mb-6 border border-blue-200 dark:border-blue-800/50 text-sm">
+                        <h4 class="font-bold mb-1 text-blue-800 dark:text-blue-300">🖥️ Device Compatibility</h4>
+                        <p class="text-blue-700 dark:text-blue-400">Outbook is engineered specifically for PC/Mac notebook and desktop browsers. It is not optimized for handheld mobile devices.</p>
                     </div>
 
                     <div class="bg-gray-100 dark:bg-gray-800 rounded p-4 mb-6 border border-gray-200 dark:border-gray-700">
@@ -406,12 +416,12 @@
                         </table>
                     </div>
 
-                    <!-- PURE HTML BMC BUTTON -->
+                    <!-- BUY ME A COFFEE IMAGE BUTTON -->
                     <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
                         <h4 class="font-bold mb-2">☕ Support Outbook</h4>
                         <p class="text-sm mb-4 text-gray-600 dark:text-gray-400">If you like this project and want to keep it alive and ad-free, consider buying me a coffee!</p>
                         <a href="https://www.buymeacoffee.com/Sachmer" target="_blank" class="inline-block transition-transform hover:scale-105">
-                            <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=Sachmer&button_colour=FFDD00&font_colour=000000&font_family=Cookie&outline_colour=000000&coffee_colour=ffffff" alt="Buy me a coffee" />
+                            <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee" style="height: 60px !important;width: 217px !important;">
                         </a>
                     </div>
                 </div>
@@ -449,7 +459,8 @@
                         author: meta.creator || "Unknown Sender",
                         data: bookData, 
                         dateStr: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-                        type: 'epub'
+                        type: 'epub',
+                        isUnread: true // Newly uploaded books start as unread
                     };
                     
                     myBooks.unshift(newBookEntry); 
@@ -476,19 +487,22 @@
             item.className = "email-item p-3 border-b border-gray-200 dark:border-darkBorder hover:bg-gray-100 dark:hover:bg-darkPanel cursor-pointer border-l-4 border-l-transparent bg-white dark:bg-darkBg transition-colors group relative";
             item.dataset.id = itemData.id;
             
+            const isUnread = itemData.isUnread || false;
             const titleClass = isBook ? "font-semibold text-outbook dark:text-blue-400" : "text-gray-700 dark:text-gray-300";
             const snippetText = isBook ? "Draft saved. Review required." : itemData.snippet;
+            const authorWeight = isUnread ? "font-bold text-gray-900 dark:text-white" : "font-medium text-gray-700 dark:text-gray-300";
             
             item.innerHTML = `
-                <div class="flex justify-between items-baseline mb-1">
-                    <!-- Added an unread dot for emails -->
-                    ${!isBook ? '<div class="absolute left-2 top-4 w-2 h-2 rounded-full bg-outbook"></div><span class="pl-3 font-semibold text-[15px] truncate pr-2 text-gray-900 dark:text-gray-100">' + itemData.author + '</span>' : '<span class="font-bold text-[15px] truncate pr-2 text-gray-900 dark:text-gray-100">' + itemData.author + '</span>'}
-                    
+                <div class="flex justify-between items-baseline mb-1 relative">
+                    <div class="flex items-center truncate pr-2">
+                        ${isUnread ? '<div class="w-2 h-2 rounded-full bg-outbook mr-2 shrink-0"></div>' : ''}
+                        <span class="${authorWeight} text-[15px] truncate">${itemData.author}</span>
+                    </div>
                     <span class="text-xs ${isBook ? 'text-outbook dark:text-blue-400 font-semibold' : 'text-gray-500'} shrink-0 group-hover:hidden">${itemData.dateStr}</span>
                     ${isBook ? `<button class="hidden group-hover:block text-red-500 text-xs shrink-0 delete-btn z-10" title="Delete Book">🗑️</button>` : ''}
                 </div>
-                <div class="text-sm ${titleClass} truncate mb-1 ${!isBook ? 'pl-3' : ''}">${itemData.title}</div>
-                <div class="text-sm text-gray-500 dark:text-gray-400 truncate ${!isBook ? 'pl-3' : ''}">${snippetText}</div>
+                <div class="text-sm ${titleClass} truncate mb-1 ${isUnread ? 'font-semibold' : ''}">${itemData.title}</div>
+                <div class="text-sm text-gray-500 dark:text-gray-400 truncate">${snippetText}</div>
             `;
             
             if(isBook) {
@@ -499,11 +513,11 @@
             }
 
             item.onclick = () => {
-                // Remove unread dot on click
-                const unreadDot = item.querySelector('.bg-outbook.rounded-full.absolute');
-                if (unreadDot) unreadDot.remove();
-                const authorText = item.querySelector('.font-semibold');
-                if (authorText && !isBook) authorText.classList.remove('font-semibold');
+                if (itemData.isUnread) {
+                    itemData.isUnread = false;
+                    if (isBook) saveBookToDB(itemData);
+                    renderBookList();
+                }
 
                 if (isBook) loadBook(itemData);
                 else loadStaticContent(itemData);
