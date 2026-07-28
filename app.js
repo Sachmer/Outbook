@@ -69,8 +69,10 @@ const el = {
     btnNextPage: document.getElementById('btn-next-page'),
     fontSelect: document.getElementById('font-select'),
     spacingSelect: document.getElementById('spacing-select'),
+    colorSelect: document.getElementById('color-select'),
     sizeUp: document.getElementById('size-up'),
     sizeDown: document.getElementById('size-down')
+    
 };
 
 // ==========================================================================
@@ -271,7 +273,11 @@ function updateProgressMetric(location) {
 function updateEpubTheme() {
     if (!rendition) return;
     const bgColor = isDark ? '#202020' : '#ffffff';
-    const textColor = isDark ? '#f3f2f1' : '#252423';
+    const defaultTextColor = isDark ? '#f3f2f1' : '#252423';
+    
+    // Read the dropdown value. Use the default if 'Theme' is selected.
+    const selectedColor = el.colorSelect.value;
+    const textColor = selectedColor === 'default' ? defaultTextColor : selectedColor;
     
     rendition.themes.register("currentTheme", {
         "body": { "background": `${bgColor} !important`, "color": `${textColor} !important` },
@@ -435,6 +441,7 @@ el.btnViewBossKey.addEventListener('click', toggleBossKey);
 // Formatting Toolbar hooks
 el.fontSelect.addEventListener('change', applyFormatting);
 el.spacingSelect.addEventListener('change', applyFormatting);
+el.colorSelect.addEventListener('change', applyFormatting);
 el.sizeUp.addEventListener('click', () => { currentFontSize += 10; applyFormatting(); });
 el.sizeDown.addEventListener('click', () => { currentFontSize = Math.max(50, currentFontSize - 10); applyFormatting(); });
 el.btnNextPage.addEventListener('click', () => navigatePage('next'));
