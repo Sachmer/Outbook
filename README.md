@@ -17,7 +17,7 @@ If you enjoy using Outbook and want to support its ongoing development, feel fre
 ☕ **[Buy Me a Coffee](https://www.buymeacoffee.com/Sachmer)**
 
 ## Try It Live
-👉 **[outbook.online](http://outbook.online/)**
+👉 **[www.outbook.online](http://outbook.online/)**
 
 ## Legal
 Not affiliated with Microsoft or Outlook.
