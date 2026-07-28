@@ -11,13 +11,14 @@ A local-first ePub reader disguised as a familiar inbox. No uploads, no accounts
 - **Persistent Local Caching:** Powered by IndexedDB and `localStorage` so your books and exact reading position persist across browser refreshes without server storage.
 - **Keyboard Navigation:** Use `J` / `K` or arrow keys to flip pages seamlessly like scrolling through emails.
 
-## Support the Project
-If you enjoy using Outbook and want to support its ongoing development, feel free to buy me a coffee!
-
-☕ **[Buy Me a Coffee](https://www.buymeacoffee.com/Sachmer)**
-
 ## Try It Live
 👉 **[www.outbook.online](http://outbook.online/)**
 
 ## Legal
 Not affiliated with Microsoft or Outlook.
+
+## 
+## Support the Project
+If you enjoy using Outbook and want to support its ongoing development, feel free to buy me a coffee!
+
+☕ **[Buy Me a Coffee](https://www.buymeacoffee.com/Sachmer)**
