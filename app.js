@@ -89,6 +89,17 @@ const fakeEmails = [
     { id: 'fake-10', author: 'Colin Ballinger', title: 'Research & Development', dateStr: 'Last Week', snippet: '"So it goes." I\'ve compiled the data metrics you requested for the upcoming review.', type: 'email' }
 ];
 
+const exampleBook = {
+    id: 'sys-odyssey',
+    title: 'The Odyssey',
+    author: 'Homer',
+    dateStr: 'System',
+    type: 'epub',
+    isSystem: true,
+    isUnread: !localStorage.getItem('sys_odyssey_read'),
+    url: './odyssey.epub' // Points to the file in your repo
+};
+
 const aboutOutbookData = {
     id: 'about-outbook',
     author: 'Outbook Administration',
@@ -205,7 +216,10 @@ function loadBook(bookObj) {
     if (activeBook) { activeBook.destroy(); }
     el.viewer.innerHTML = '';
 
-    activeBook = ePub(bookObj.data);
+    // Route either the system URL or the uploaded ArrayBuffer to the engine
+    const bookSource = bookObj.isSystem ? bookObj.url : bookObj.data;
+    
+    activeBook = ePub(bookSource);
     activeBook.outbookId = bookObj.id; 
 
     rendition = activeBook.renderTo("viewer", {
@@ -492,11 +506,17 @@ el.bookUploadInput.addEventListener('change', handleBookUpload);
 
 // List Rendering
 function renderBookList() {
-    el.bookCount.innerText = `${myBooks.length}/${MAX_BOOKS} Items`;
-    el.inboxBadge.innerText = myBooks.length + fakeEmails.length;
+    el.bookCount.innerText = `Uploads: ${myBooks.length}/${MAX_BOOKS}`;
+    el.inboxBadge.innerText = myBooks.length + 1 + fakeEmails.length; // +1 for Odyssey
     el.bookList.innerHTML = '';
     
+    // 1. Render User Uploads
     myBooks.forEach(book => el.bookList.appendChild(createListItem(book, true)));
+    
+    // 2. Render Built-in System Book
+    el.bookList.appendChild(createListItem(exampleBook, true));
+
+    // 3. Render Fake Emails
     fakeEmails.forEach(email => el.bookList.appendChild(createListItem(email, false)));
 }
 
@@ -517,7 +537,7 @@ function createListItem(itemData, isBook) {
                 <span class="${authorWeight} text-[15px] truncate">${itemData.author}</span>
             </div>
             <span class="text-xs ${isBook ? 'text-outbook dark:text-blue-400 font-semibold' : 'text-gray-500'} shrink-0 group-hover:hidden">${itemData.dateStr}</span>
-            ${isBook ? `<button class="hidden group-hover:block text-red-500 text-xs shrink-0 delete-btn z-10" title="Delete Book">🗑️</button>` : ''}
+            ${isBook && !itemData.isSystem ? `<button class="hidden group-hover:block text-red-500 text-xs shrink-0 delete-btn z-10" title="Delete Book">🗑️</button>` : ''}
         </div>
         <div class="text-sm ${titleClass} truncate mb-1 ${isUnread ? 'font-semibold' : ''}">${itemData.title}</div>
         <div class="text-sm text-gray-500 dark:text-gray-400 truncate">${snippetText}</div>
@@ -533,7 +553,12 @@ function createListItem(itemData, isBook) {
     item.onclick = () => {
         if (itemData.isUnread) {
             itemData.isUnread = false;
-            if (isBook) saveBookToDB(itemData);
+            // Save state based on book type
+            if (itemData.isSystem) {
+                localStorage.setItem('sys_odyssey_read', 'true');
+            } else if (isBook) {
+                saveBookToDB(itemData);
+            }
             renderBookList();
         }
 
