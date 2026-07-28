@@ -543,7 +543,7 @@ function createListItem(itemData, isBook) {
         <div class="text-sm text-gray-500 dark:text-gray-400 truncate">${snippetText}</div>
     `;
     
-    if(isBook) {
+    if(isBook && !itemData.isSystem) {
         item.querySelector('.delete-btn').addEventListener('click', (e) => {
             e.stopPropagation(); 
             deleteBook(itemData.id);
