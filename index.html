@@ -307,19 +307,25 @@
                     <option value="2.0">Spacing: Loose</option>
                 </select>
                 
-                <select id="color-select" class="bg-transparent border border-gray-300 dark:border-darkBorder rounded px-1 md:px-2 py-1 outline-none dark:bg-darkBg text-gray-700 dark:text-gray-200 cursor-pointer hidden md:block text-sm">
-                    <option value="default">Color: Theme</option>
-                    <option value="#EF4444">Color: Red</option>
-                    <option value="#3B82F6">Color: Blue</option>
-                    <option value="#10B981">Color: Green</option>
-                    <option value="#F59E0B">Color: Yellow</option>
-                    <option value="#8B5CF6">Color: Purple</option>
-                    <option value="#000000">Shade: Black</option>
-                    <option value="#374151">Shade: Dark Gray</option>
-                    <option value="#9CA3AF">Shade: Gray</option>
-                    <option value="#E5E7EB">Shade: Light Gray</option>
-                    <option value="#FFFFFF">Shade: White</option>
-                </select>
+                <!-- Replace the old color-select dropdown with this Color Palette -->
+                <div id="color-palette" class="flex items-center space-x-1.5 border-l border-gray-300 dark:border-darkBorder pl-2 md:pl-4 hidden md:flex">
+                    <!-- Default (Theme-aware) -->
+                    <button data-color="default" class="w-5 h-5 rounded border border-gray-400 dark:border-gray-500 bg-gradient-to-br from-white to-black ring-2 ring-outbook ring-offset-1 dark:ring-offset-darkPanel transition-transform hover:scale-110" title="Theme Default"></button>
+                    
+                    <!-- 5 Shades (Black to White) -->
+                    <button data-color="#000000" class="w-5 h-5 rounded border border-gray-400 bg-black transition-transform hover:scale-110" title="Black"></button>
+                    <button data-color="#374151" class="w-5 h-5 rounded border border-gray-400 bg-[#374151] transition-transform hover:scale-110" title="Dark Gray"></button>
+                    <button data-color="#9CA3AF" class="w-5 h-5 rounded border border-gray-400 bg-[#9CA3AF] transition-transform hover:scale-110" title="Gray"></button>
+                    <button data-color="#E5E7EB" class="w-5 h-5 rounded border border-gray-400 bg-[#E5E7EB] transition-transform hover:scale-110" title="Light Gray"></button>
+                    <button data-color="#FFFFFF" class="w-5 h-5 rounded border border-gray-400 bg-white transition-transform hover:scale-110" title="White"></button>
+                    
+                    <!-- 5 Colors -->
+                    <button data-color="#EF4444" class="w-5 h-5 rounded border border-gray-400 bg-red-500 transition-transform hover:scale-110" title="Red"></button>
+                    <button data-color="#3B82F6" class="w-5 h-5 rounded border border-gray-400 bg-blue-500 transition-transform hover:scale-110" title="Blue"></button>
+                    <button data-color="#10B981" class="w-5 h-5 rounded border border-gray-400 bg-green-500 transition-transform hover:scale-110" title="Green"></button>
+                    <button data-color="#F59E0B" class="w-5 h-5 rounded border border-gray-400 bg-yellow-500 transition-transform hover:scale-110" title="Yellow"></button>
+                    <button data-color="#8B5CF6" class="w-5 h-5 rounded border border-gray-400 bg-purple-500 transition-transform hover:scale-110" title="Purple"></button>
+                </div>
             </div>
 
             <!-- Email Style Header & Progress Bar -->
