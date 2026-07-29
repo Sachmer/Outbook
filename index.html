@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- PHASE 7 & 12: SEO & Discoverability Tags -->
+    <!-- SEO & Discoverability Tags -->
     <title>Inbox - Outbook</title>
     <meta name="description" content="A local-first ePub reader disguised as a familiar inbox. No uploads, no accounts, no server.">
     <meta name="keywords" content="epub reader, stealth reader, browser epub, private reading, outbook">
@@ -280,10 +280,10 @@
 
             <!-- Reader Toolbar -->
             <div class="h-12 border-b border-gray-200 dark:border-darkBorder flex items-center px-4 space-x-2 md:space-x-4 bg-gray-50 dark:bg-darkPanel text-sm shrink-0 hidden" id="reader-toolbar">
-                <button id="btn-prev-page" class="px-2 md:px-3 py-1.5 hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-outbook dark:text-blue-400 font-medium" title="Previous Page (Key: J or Left Arrow)">
+                <button id="btn-prev-page" class="px-2 md:px-3 py-1.5 hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-outbook dark:text-blue-400 font-medium" title="Previous Page (Key: J, Left Arrow, or Scroll Up)">
                     <span class="mr-1">↩️</span> <span class="hidden md:inline">Reply</span>
                 </button>
-                <button id="btn-next-page" class="px-2 md:px-3 py-1.5 hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-outbook dark:text-blue-400 font-medium" title="Next Page (Key: K or Right Arrow)">
+                <button id="btn-next-page" class="px-2 md:px-3 py-1.5 hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-outbook dark:text-blue-400 font-medium" title="Next Page (Key: K, Right Arrow, or Scroll Down)">
                     <span class="mr-1">↪️</span> <span class="hidden md:inline">Forward</span>
                 </button>
                 
@@ -306,26 +306,6 @@
                     <option value="1.6" selected>Spacing: Normal</option>
                     <option value="2.0">Spacing: Loose</option>
                 </select>
-                
-                <!-- Replace the old color-select dropdown with this Color Palette -->
-                <div id="color-palette" class="flex items-center space-x-1.5 border-l border-gray-300 dark:border-darkBorder pl-2 md:pl-4 hidden md:flex">
-                    <!-- Default (Theme-aware) -->
-                    <button data-color="default" class="w-5 h-5 rounded border border-gray-400 dark:border-gray-500 bg-gradient-to-br from-white to-black ring-2 ring-outbook ring-offset-1 dark:ring-offset-darkPanel transition-transform hover:scale-110" title="Theme Default"></button>
-                    
-                    <!-- 5 Shades (Black to White) -->
-                    <button data-color="#000000" class="w-5 h-5 rounded border border-gray-400 bg-black transition-transform hover:scale-110" title="Black"></button>
-                    <button data-color="#374151" class="w-5 h-5 rounded border border-gray-400 bg-[#374151] transition-transform hover:scale-110" title="Dark Gray"></button>
-                    <button data-color="#9CA3AF" class="w-5 h-5 rounded border border-gray-400 bg-[#9CA3AF] transition-transform hover:scale-110" title="Gray"></button>
-                    <button data-color="#E5E7EB" class="w-5 h-5 rounded border border-gray-400 bg-[#E5E7EB] transition-transform hover:scale-110" title="Light Gray"></button>
-                    <button data-color="#FFFFFF" class="w-5 h-5 rounded border border-gray-400 bg-white transition-transform hover:scale-110" title="White"></button>
-                    
-                    <!-- 5 Colors -->
-                    <button data-color="#EF4444" class="w-5 h-5 rounded border border-gray-400 bg-red-500 transition-transform hover:scale-110" title="Red"></button>
-                    <button data-color="#3B82F6" class="w-5 h-5 rounded border border-gray-400 bg-blue-500 transition-transform hover:scale-110" title="Blue"></button>
-                    <button data-color="#10B981" class="w-5 h-5 rounded border border-gray-400 bg-green-500 transition-transform hover:scale-110" title="Green"></button>
-                    <button data-color="#F59E0B" class="w-5 h-5 rounded border border-gray-400 bg-yellow-500 transition-transform hover:scale-110" title="Yellow"></button>
-                    <button data-color="#8B5CF6" class="w-5 h-5 rounded border border-gray-400 bg-purple-500 transition-transform hover:scale-110" title="Purple"></button>
-                </div>
             </div>
 
             <!-- Email Style Header & Progress Bar -->
@@ -336,9 +316,10 @@
                         <div class="h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-lg">👤</div>
                         <span id="display-author" class="font-medium text-gray-900 dark:text-gray-200 truncate max-w-[200px]">Author Name</span>
                     </div>
-                    <span id="display-status" class="font-semibold text-outbook dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full text-xs md:text-sm">
-                        Draft saved
-                    </span>
+                    <!-- Inline Editable Status Area (Updated by JS) -->
+                    <div id="display-status-container" class="flex items-center font-semibold text-outbook dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full text-xs md:text-sm">
+                        <span id="display-status">Draft saved</span>
+                    </div>
                 </div>
                 <!-- Visual Progress Bar Indicator -->
                 <div class="absolute bottom-0 left-0 right-0 h-1 bg-gray-200 dark:bg-gray-700 hidden" id="progress-container">
