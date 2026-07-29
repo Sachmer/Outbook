@@ -5,7 +5,8 @@ const MAX_BOOKS = 3;
 let myBooks = [];
 let activeBook = null;
 let rendition = null;
-let currentFontSize = 100; 
+let currentFontSize = 100;
+let currentTextColor = 'default';
 let isHidden = true; 
 let isDark = false;
 let isResizing = false;
@@ -69,7 +70,7 @@ const el = {
     btnNextPage: document.getElementById('btn-next-page'),
     fontSelect: document.getElementById('font-select'),
     spacingSelect: document.getElementById('spacing-select'),
-    colorSelect: document.getElementById('color-select'),
+    colorPalette: document.getElementById('color-palette'),
     sizeUp: document.getElementById('size-up'),
     sizeDown: document.getElementById('size-down')
     
@@ -235,7 +236,7 @@ function loadBook(bookObj) {
         rendition.display();
     }
     
-    rendition.on("rendered", () => { updateEpubTheme(); applyFormatting(); });
+    rendition.on("rendered", () => { applyFormatting(); });
 
     activeBook.ready.then(() => {
         return activeBook.locations.generate(1024);
@@ -270,20 +271,35 @@ function updateProgressMetric(location) {
     el.progressBarFill.style.width = `${percentage}%`;
 }
 
-function updateEpubTheme() {
+function applyFormatting() {
     if (!rendition) return;
+    
+    const font = el.fontSelect.value;
+    const spacing = el.spacingSelect.value;
     const bgColor = isDark ? '#202020' : '#ffffff';
     const defaultTextColor = isDark ? '#f3f2f1' : '#252423';
+    const textColor = currentTextColor === 'default' ? defaultTextColor : currentTextColor;
     
-    // Read the dropdown value. Use the default if 'Theme' is selected.
-    const selectedColor = el.colorSelect.value;
-    const textColor = selectedColor === 'default' ? defaultTextColor : selectedColor;
+    rendition.themes.font(font);
+    rendition.themes.fontSize(`${currentFontSize}%`);
     
-    rendition.themes.register("currentTheme", {
-        "body": { "background": `${bgColor} !important`, "color": `${textColor} !important` },
-        "a": { "color": "#0078D4 !important", "text-decoration": "none !important" }
+    // Unified dynamic theme applies background, spacing, and font colors simultaneously
+    rendition.themes.register("dynamicTheme", {
+        "body": { 
+            "background": `${bgColor} !important`, 
+            "color": `${textColor} !important`,
+            "font-family": `${font} !important`
+        },
+        "p, div, span, h1, h2, h3, h4, h5, h6, li": { 
+            "line-height": `${spacing} !important`,
+            "color": `${textColor} !important`
+        },
+        "a": { 
+            "color": "#0078D4 !important", 
+            "text-decoration": "none !important" 
+        }
     });
-    rendition.themes.select("currentTheme");
+    rendition.themes.select("dynamicTheme");
 }
 
 function applyFormatting() {
@@ -341,7 +357,7 @@ if (!localStorage.getItem('epub_disclaimer_agreed')) {
 function toggleTheme() {
     isDark = !isDark;
     document.documentElement.classList.toggle('dark', isDark);
-    updateEpubTheme();
+    applyFormatting();
 }
 
 function toggleBossKey() {
@@ -371,12 +387,15 @@ el.resizer.addEventListener('mousedown', () => {
     isResizing = true;
     document.body.style.cursor = 'col-resize';
     document.body.style.userSelect = 'none';
+    // FIX: Prevent iframes from swallowing the mouse event during fast drags
+    el.viewer.style.pointerEvents = 'none';
+    el.staticViewer.style.pointerEvents = 'none';
 });
 
 document.addEventListener('mousemove', (e) => {
     if (!isResizing) return;
     const sidebarWidth = el.navSidebar.getBoundingClientRect().width;
-    const newWidth = e.clientX - sidebarWidth; // dynamic offset to fix compact mode bug
+    const newWidth = e.clientX - sidebarWidth;
     if (newWidth > 200 && newWidth < (window.innerWidth * 0.75)) {
         el.middlePane.style.width = `${newWidth}px`;
     }
@@ -387,6 +406,9 @@ document.addEventListener('mouseup', () => {
         isResizing = false;
         document.body.style.cursor = 'default';
         document.body.style.userSelect = '';
+        // Restore pointer events
+        el.viewer.style.pointerEvents = 'auto'; 
+        el.staticViewer.style.pointerEvents = 'auto';
         if (rendition) rendition.resize();
     }
 });
@@ -441,11 +463,24 @@ el.btnViewBossKey.addEventListener('click', toggleBossKey);
 // Formatting Toolbar hooks
 el.fontSelect.addEventListener('change', applyFormatting);
 el.spacingSelect.addEventListener('change', applyFormatting);
-el.colorSelect.addEventListener('change', applyFormatting);
+
+// Color Palette click logic
+const colorButtons = el.colorPalette.querySelectorAll('button');
+colorButtons.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        // Remove active ring from all squares
+        colorButtons.forEach(b => b.classList.remove('ring-2', 'ring-outbook', 'ring-offset-1', 'dark:ring-offset-darkPanel'));
+        // Add active ring to the clicked square
+        const target = e.currentTarget;
+        target.classList.add('ring-2', 'ring-outbook', 'ring-offset-1', 'dark:ring-offset-darkPanel');
+        
+        currentTextColor = target.dataset.color;
+        applyFormatting();
+    });
+});
+
 el.sizeUp.addEventListener('click', () => { currentFontSize += 10; applyFormatting(); });
 el.sizeDown.addEventListener('click', () => { currentFontSize = Math.max(50, currentFontSize - 10); applyFormatting(); });
-el.btnNextPage.addEventListener('click', () => navigatePage('next'));
-el.btnPrevPage.addEventListener('click', () => navigatePage('prev'));
 
 // Pre-upload Capacity Check Hook
 function handleUploadClickTrigger(e) {
