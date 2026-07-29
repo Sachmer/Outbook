@@ -6,10 +6,10 @@ let myBooks = [];
 let activeBook = null;
 let rendition = null;
 let currentFontSize = 100;
-let currentTextColor = 'default';
 let isHidden = true; 
 let isDark = false;
 let isResizing = false;
+let wheelLock = false; // Prevents rapid-fire scroll wheel pagination
 
 // ==========================================================================
 // SECTION: DOM Cache
@@ -61,6 +61,7 @@ const el = {
     // Right Pane (Reader)
     displayTitle: document.getElementById('display-title'),
     displayAuthor: document.getElementById('display-author'),
+    displayStatusContainer: document.getElementById('display-status-container'),
     displayStatus: document.getElementById('display-status'),
     progressContainer: document.getElementById('progress-container'),
     progressBarFill: document.getElementById('progress-bar-fill'),
@@ -70,10 +71,8 @@ const el = {
     btnNextPage: document.getElementById('btn-next-page'),
     fontSelect: document.getElementById('font-select'),
     spacingSelect: document.getElementById('spacing-select'),
-    colorPalette: document.getElementById('color-palette'),
     sizeUp: document.getElementById('size-up'),
     sizeDown: document.getElementById('size-down')
-    
 };
 
 // ==========================================================================
@@ -100,7 +99,7 @@ const exampleBook = {
     type: 'epub',
     isSystem: true,
     isUnread: !localStorage.getItem('sys_odyssey_read'),
-    url: './odyssey.epub' // Points to the file in your repo
+    url: './odyssey.epub'
 };
 
 const aboutOutbookData = {
@@ -136,8 +135,8 @@ const aboutOutbookData = {
                 <h4 class="font-bold mb-2">⌨️ Navigation Cheat Sheet</h4>
                 <table class="w-full text-sm text-left">
                     <tr class="border-b dark:border-gray-700"><td class="py-2">Upload Book</td><td class="py-2">Click <code>+ New message</code></td></tr>
-                    <tr class="border-b dark:border-gray-700"><td class="py-2">Next Page</td><td class="py-2"><code>Forward</code> button or <code>K</code> key / <code>→</code> key</td></tr>
-                    <tr class="border-b dark:border-gray-700"><td class="py-2">Previous Page</td><td class="py-2"><code>Reply</code> button or <code>J</code> key / <code>←</code> key</td></tr>
+                    <tr class="border-b dark:border-gray-700"><td class="py-2">Next Page</td><td class="py-2"><code>Forward</code> button, <code>K</code> key, or <code>Scroll Down</code></td></tr>
+                    <tr class="border-b dark:border-gray-700"><td class="py-2">Previous Page</td><td class="py-2"><code>Reply</code> button, <code>J</code> key, or <code>Scroll Up</code></td></tr>
                     <tr><td class="py-2 text-outbook dark:text-blue-400 font-bold">Boss Key (Panic)</td><td class="py-2 font-bold">Press <code>Escape</code></td></tr>
                 </table>
             </div>
@@ -212,16 +211,14 @@ function loadBook(bookObj) {
     el.displayTitle.innerText = bookObj.title;
     el.displayAuthor.innerText = bookObj.author;
     
-    el.displayStatus.className = "font-semibold text-outbook dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full text-xs md:text-sm pulse";
-    el.displayStatus.innerHTML = "Calculating pages...";
+    el.displayStatusContainer.classList.add("pulse");
+    el.displayStatusContainer.innerHTML = "<span>Calculating pages...</span>";
     el.progressContainer.classList.add('hidden');
     
     if (activeBook) { activeBook.destroy(); }
     el.viewer.innerHTML = '';
 
-    // Route either the system URL or the uploaded ArrayBuffer to the engine
     const bookSource = bookObj.isSystem ? bookObj.url : bookObj.data;
-    
     activeBook = ePub(bookSource);
     activeBook.outbookId = bookObj.id; 
 
@@ -236,25 +233,41 @@ function loadBook(bookObj) {
         rendition.display();
     }
     
+    // Core Event Hooks
     rendition.on("rendered", () => { applyFormatting(); });
-
-    activeBook.ready.then(() => {
-        return activeBook.locations.generate(1024);
-    }).then(() => {
-        el.displayStatus.classList.remove('pulse'); 
-        el.progressContainer.classList.remove('hidden');
-        updateProgressMetric(rendition.location); 
-    });
-
-    rendition.on("relocated", (location) => {
-        updateProgressMetric(location);
-    });
-
+    rendition.on("relocated", (location) => { updateProgressMetric(location); });
+    
     rendition.on("keyup", (e) => {
         if (e.key === 'ArrowRight' || e.key === 'j' || e.key === 'J') navigatePage('next');
         if (e.key === 'ArrowLeft' || e.key === 'k' || e.key === 'K') navigatePage('prev');
         if (e.key === 'Escape') toggleBossKey();
     });
+
+    // Scroll Wheel Pagination Hook (Attached to iframe contents)
+    rendition.hooks.content.register((contents) => {
+        contents.document.addEventListener('wheel', handleScrollPagination, { passive: true });
+    });
+
+    activeBook.ready.then(() => {
+        return activeBook.locations.generate(1024);
+    }).then(() => {
+        el.displayStatusContainer.classList.remove('pulse'); 
+        el.progressContainer.classList.remove('hidden');
+        updateProgressMetric(rendition.location); 
+    });
+}
+
+function handleScrollPagination(e) {
+    if (isHidden || wheelLock) return;
+    
+    // Only trigger page turn on significant vertical scrolls
+    if (Math.abs(e.deltaY) > 10) {
+        wheelLock = true;
+        if (e.deltaY > 0) navigatePage('next');
+        else if (e.deltaY < 0) navigatePage('prev');
+        
+        setTimeout(() => { wheelLock = false; }, 250); // 250ms debounce
+    }
 }
 
 function updateProgressMetric(location) {
@@ -267,39 +280,63 @@ function updateProgressMetric(location) {
     const currentPage = activeBook.locations.locationFromCfi(location.start.cfi);
     const totalPages = activeBook.locations.total;
 
-    el.displayStatus.innerHTML = `${percentage}% Complete &nbsp;•&nbsp; Page ${currentPage} of ${totalPages}`;
+    // Build the inline editable page jumper
+    el.displayStatusContainer.innerHTML = `
+        <span class="mr-1">${percentage}% Complete &bull; Page </span>
+        <input type="number" id="page-jump-input" value="${currentPage}" min="1" max="${totalPages}" 
+               class="bg-transparent border-b border-outbook dark:border-blue-400 w-12 text-center outline-none focus:bg-white dark:focus:bg-darkBg text-outbook dark:text-blue-400 font-bold mx-1 no-spinners" title="Type page number and press Enter" />
+        <span> of ${totalPages}</span>
+    `;
     el.progressBarFill.style.width = `${percentage}%`;
+
+    // Attach listener for the manual page jump
+    const pageInput = document.getElementById('page-jump-input');
+    if (pageInput) {
+        pageInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                jumpToPage(pageInput.value);
+            }
+        });
+        pageInput.addEventListener('blur', () => {
+            jumpToPage(pageInput.value); // Jump if they click away after typing
+        });
+    }
 }
 
-function applyFormatting() {
+function jumpToPage(pageNum) {
+    const page = parseInt(pageNum, 10);
+    if (isNaN(page) || page < 1 || !activeBook || !activeBook.locations) return;
+    
+    const total = activeBook.locations.total;
+    const targetPage = Math.max(1, Math.min(page, total)); // Clamp between 1 and total
+    const cfi = activeBook.locations.cfiFromLocation(targetPage);
+    
+    if (cfi && rendition) {
+        rendition.display(cfi);
+    }
+}
+
+function updateEpubTheme() {
     if (!rendition) return;
-    
-    const font = el.fontSelect.value;
-    const spacing = el.spacingSelect.value;
     const bgColor = isDark ? '#202020' : '#ffffff';
-    const defaultTextColor = isDark ? '#f3f2f1' : '#252423';
-    const textColor = currentTextColor === 'default' ? defaultTextColor : currentTextColor;
+    const textColor = isDark ? '#f3f2f1' : '#252423';
     
-    rendition.themes.font(font);
-    rendition.themes.fontSize(`${currentFontSize}%`);
-    
-    // Unified dynamic theme applies background, spacing, and font colors simultaneously
-    rendition.themes.register("dynamicTheme", {
+    // Create a theme that aggressively applies proper text colors, crucial for Dark Mode
+    rendition.themes.register("currentTheme", {
         "body": { 
             "background": `${bgColor} !important`, 
-            "color": `${textColor} !important`,
-            "font-family": `${font} !important`
+            "color": `${textColor} !important` 
         },
         "p, div, span, h1, h2, h3, h4, h5, h6, li": { 
-            "line-height": `${spacing} !important`,
-            "color": `${textColor} !important`
+            "color": `${textColor} !important` 
         },
         "a": { 
             "color": "#0078D4 !important", 
             "text-decoration": "none !important" 
         }
     });
-    rendition.themes.select("dynamicTheme");
+    rendition.themes.select("currentTheme");
 }
 
 function applyFormatting() {
@@ -316,6 +353,8 @@ function applyFormatting() {
         "div": { "line-height": `${spacing} !important` }
     });
     rendition.themes.select("spacing");
+    
+    // Immediately refresh colors after layout formatting
     updateEpubTheme(); 
 }
 
@@ -382,12 +421,16 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
+// Scroll Wheel on main Viewer Container (Catches scrolls outside the iframe margins)
+el.viewer.addEventListener('wheel', handleScrollPagination, { passive: true });
+
 // Resizer Drag Logic
 el.resizer.addEventListener('mousedown', () => {
     isResizing = true;
     document.body.style.cursor = 'col-resize';
     document.body.style.userSelect = 'none';
-    // FIX: Prevent iframes from swallowing the mouse event during fast drags
+    
+    // Prevent iframes from swallowing the mouse event during fast horizontal drags
     el.viewer.style.pointerEvents = 'none';
     el.staticViewer.style.pointerEvents = 'none';
 });
@@ -406,9 +449,11 @@ document.addEventListener('mouseup', () => {
         isResizing = false;
         document.body.style.cursor = 'default';
         document.body.style.userSelect = '';
-        // Restore pointer events
+        
+        // Restore pointer events so user can click inside the book again
         el.viewer.style.pointerEvents = 'auto'; 
         el.staticViewer.style.pointerEvents = 'auto';
+        
         if (rendition) rendition.resize();
     }
 });
@@ -463,24 +508,10 @@ el.btnViewBossKey.addEventListener('click', toggleBossKey);
 // Formatting Toolbar hooks
 el.fontSelect.addEventListener('change', applyFormatting);
 el.spacingSelect.addEventListener('change', applyFormatting);
-
-// Color Palette click logic
-const colorButtons = el.colorPalette.querySelectorAll('button');
-colorButtons.forEach(btn => {
-    btn.addEventListener('click', (e) => {
-        // Remove active ring from all squares
-        colorButtons.forEach(b => b.classList.remove('ring-2', 'ring-outbook', 'ring-offset-1', 'dark:ring-offset-darkPanel'));
-        // Add active ring to the clicked square
-        const target = e.currentTarget;
-        target.classList.add('ring-2', 'ring-outbook', 'ring-offset-1', 'dark:ring-offset-darkPanel');
-        
-        currentTextColor = target.dataset.color;
-        applyFormatting();
-    });
-});
-
 el.sizeUp.addEventListener('click', () => { currentFontSize += 10; applyFormatting(); });
 el.sizeDown.addEventListener('click', () => { currentFontSize = Math.max(50, currentFontSize - 10); applyFormatting(); });
+el.btnNextPage.addEventListener('click', () => navigatePage('next'));
+el.btnPrevPage.addEventListener('click', () => navigatePage('prev'));
 
 // Pre-upload Capacity Check Hook
 function handleUploadClickTrigger(e) {
@@ -500,14 +531,12 @@ function handleBookUpload(e) {
     const file = e.target.files[0];
     if (!file) return;
     
-    // Safety guardrails
     if (!file.name.toLowerCase().endsWith('.epub') && file.type !== 'application/epub+zip') {
         alert('Invalid file format. Outbook only supports .epub files.');
         e.target.value = '';
         return;
     }
 
-    // Duplicate File Detection Check
     const isDuplicate = myBooks.some(b => b.fileName === file.name && b.size === file.size);
     if (isDuplicate) {
         const proceed = confirm("This file appears to already be in your inbox — add it again anyway?");
@@ -549,16 +578,11 @@ el.bookUploadInput.addEventListener('change', handleBookUpload);
 // List Rendering
 function renderBookList() {
     el.bookCount.innerText = `Uploads: ${myBooks.length}/${MAX_BOOKS}`;
-    el.inboxBadge.innerText = myBooks.length + 1 + fakeEmails.length; // +1 for Odyssey
+    el.inboxBadge.innerText = myBooks.length + 1 + fakeEmails.length; 
     el.bookList.innerHTML = '';
     
-    // 1. Render User Uploads
     myBooks.forEach(book => el.bookList.appendChild(createListItem(book, true)));
-    
-    // 2. Render Built-in System Book
     el.bookList.appendChild(createListItem(exampleBook, true));
-
-    // 3. Render Fake Emails
     fakeEmails.forEach(email => el.bookList.appendChild(createListItem(email, false)));
 }
 
@@ -595,7 +619,6 @@ function createListItem(itemData, isBook) {
     item.onclick = () => {
         if (itemData.isUnread) {
             itemData.isUnread = false;
-            // Save state based on book type
             if (itemData.isSystem) {
                 localStorage.setItem('sys_odyssey_read', 'true');
             } else if (isBook) {
@@ -631,8 +654,9 @@ function loadStaticContent(dataObj) {
     
     el.displayTitle.innerText = dataObj.title;
     el.displayAuthor.innerText = dataObj.author;
-    el.displayStatus.innerHTML = 'Received';
-    el.displayStatus.className = "text-gray-500 dark:text-gray-400"; 
+    
+    el.displayStatusContainer.classList.remove("pulse");
+    el.displayStatusContainer.innerHTML = "<span>Received</span>";
     
     if (activeBook) { 
         activeBook.destroy(); 
