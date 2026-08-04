@@ -12,6 +12,8 @@ A local-first ePub reader disguised as a familiar inbox. No uploads, no accounts
 ## Try It Live
 👉 **[www.outbook.online](http://outbook.online/)**
 
+![Outbook App Screenshot](images/preview-image.png)
+
 ## Legal
 Not affiliated with Microsoft or Outlook.
 
