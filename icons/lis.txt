@@ -1,0 +1,17 @@
+#,Icon Purpose,Recommended Lucide Name
+1,Main Logo,book-open
+2,Sidebar Toggle,menu
+3,Search,search
+4,Theme Switcher,sun / moon
+5,Section Expand,chevron-down
+6,Inbox,inbox
+7,Delete / Trash,trash-2
+8,Archive,archive
+9,Junk / Block,ban
+10,Sent Mail,send
+11,User / Person,user
+12,Generic Folder,folder
+13,Compose / New,pen-square
+14,Reply & Forward,reply & forward
+15,Tags & Print,tag & printer
+16,About / Info,info
