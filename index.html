@@ -45,7 +45,7 @@
 <body class="h-[100dvh] w-screen flex flex-col bg-white dark:bg-darkBg text-gray-800 dark:text-darkText overflow-hidden">
 
     <!-- ============================================================
-         MODALS — Disclaimer & Inbox Capacity
+         MODALS — Disclaimer, Gutenberg & Inbox Capacity
          ============================================================ -->
     <!-- LEGAL DISCLAIMER MODAL -->
     <div id="disclaimer-modal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
@@ -71,6 +71,19 @@
         </div>
     </div>
 
+    <!-- PROJECT GUTENBERG MODAL -->
+    <div id="gutenberg-modal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden">
+        <div class="bg-white dark:bg-darkPanel p-6 rounded-lg max-w-md shadow-xl border dark:border-darkBorder m-4">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Project Gutenberg License</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
+                "The Odyssey" by Homer is provided free of charge by <strong>Project Gutenberg</strong>. It is for the use of anyone anywhere in the United States and most other parts of the world at no cost and with almost no restrictions whatsoever. You may copy it, give it away or re-use it under the terms of the Project Gutenberg License included with this eBook or online at www.gutenberg.org.
+            </p>
+            <button id="gutenberg-close-btn" class="w-full bg-outbook text-white font-medium py-2 rounded transition hover:bg-blue-700">
+                Acknowledge & Read
+            </button>
+        </div>
+    </div>
+
     <!-- CAPACITY MODAL -->
     <div id="capacity-modal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden">
         <div class="bg-white dark:bg-darkPanel p-6 rounded-lg max-w-sm shadow-xl border dark:border-darkBorder m-4">
@@ -89,15 +102,17 @@
          ============================================================ -->
     <header class="h-12 bg-outbook text-white flex items-center justify-between px-4 shrink-0 z-20">
         <div class="flex items-center space-x-4">
-            <button id="sidebar-toggle" class="hover:bg-white/20 p-1.5 rounded text-xl leading-none transition-colors" title="Toggle Sidebar">☰</button>
+            <button id="sidebar-toggle" class="hover:bg-white/20 p-1.5 rounded transition-colors" title="Toggle Sidebar">
+                <img src="icons/menu-wh.svg" class="w-5 h-5" alt="Menu">
+            </button>
             <div class="font-semibold text-lg flex items-center space-x-2 cursor-pointer">
-                <span class="text-xl">🕮</span>
+                <img src="icons/book-open-wh.svg" class="w-6 h-6" alt="Logo">
                 <span class="sidebar-text">Outbook</span>
             </div>
         </div>
         <div class="flex-1 max-w-xl px-4 hidden md:block">
             <div class="bg-white/20 rounded h-8 flex items-center px-3 text-sm placeholder-white/70">
-                <span class="mr-2">🔍</span>
+                <img src="icons/search-wh.svg" class="w-4 h-4 mr-2" alt="Search">
                 <input type="text" placeholder="Search" class="bg-transparent border-none outline-none w-full text-white placeholder-white/70">
             </div>
         </div>
@@ -124,38 +139,53 @@
             <!-- Group 1: Compose -->
             <div class="flex items-center border-r pr-4 border-gray-300 dark:border-gray-600">
                 <button id="btn-new-message-ribbon" class="flex flex-col items-center hover:bg-gray-200 dark:hover:bg-gray-700 p-1 rounded cursor-pointer min-w-[50px]">
-                    <span class="text-lg mb-1">📝</span>
+                    <img src="icons/pen-square.svg" class="w-5 h-5 mb-1 block dark:hidden" alt="New">
+                    <img src="icons/pen-square-wh.svg" class="w-5 h-5 mb-1 hidden dark:block" alt="New">
                     <span>New</span>
                 </button>
             </div>
             <!-- Group 2: Actions -->
             <div class="flex items-center space-x-1 border-r pr-4 border-gray-300 dark:border-gray-600">
                 <button class="flex flex-col items-center p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 min-w-[50px]">
-                    <span class="text-lg mb-1">🗑️</span><span>Delete</span>
+                    <img src="icons/trash-2.svg" class="w-5 h-5 mb-1 block dark:hidden" alt="Delete">
+                    <img src="icons/trash-2-wh.svg" class="w-5 h-5 mb-1 hidden dark:block" alt="Delete">
+                    <span>Delete</span>
                 </button>
                 <button class="flex flex-col items-center p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 min-w-[50px]">
-                    <span class="text-lg mb-1">📦</span><span>Archive</span>
+                    <img src="icons/archive.svg" class="w-5 h-5 mb-1 block dark:hidden" alt="Archive">
+                    <img src="icons/archive-wh.svg" class="w-5 h-5 mb-1 hidden dark:block" alt="Archive">
+                    <span>Archive</span>
                 </button>
                 <button class="flex flex-col items-center p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 min-w-[50px]">
-                    <span class="text-lg mb-1">🚫</span><span>Junk</span>
+                    <img src="icons/ban.svg" class="w-5 h-5 mb-1 block dark:hidden" alt="Junk">
+                    <img src="icons/ban-wh.svg" class="w-5 h-5 mb-1 hidden dark:block" alt="Junk">
+                    <span>Junk</span>
                 </button>
             </div>
             <!-- Group 3: Respond -->
             <div class="flex items-center space-x-1 border-r pr-4 border-gray-300 dark:border-gray-600">
                 <button class="flex flex-col items-center p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 min-w-[50px]">
-                    <span class="text-lg mb-1">↩️</span><span>Reply</span>
+                    <img src="icons/reply.svg" class="w-5 h-5 mb-1 block dark:hidden" alt="Reply">
+                    <img src="icons/reply-wh.svg" class="w-5 h-5 mb-1 hidden dark:block" alt="Reply">
+                    <span>Reply</span>
                 </button>
                 <button class="flex flex-col items-center p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 min-w-[50px]">
-                    <span class="text-lg mb-1">↪️</span><span>Forward</span>
+                    <img src="icons/forward.svg" class="w-5 h-5 mb-1 block dark:hidden" alt="Forward">
+                    <img src="icons/forward-wh.svg" class="w-5 h-5 mb-1 hidden dark:block" alt="Forward">
+                    <span>Forward</span>
                 </button>
             </div>
             <!-- Group 4: Tags & Utilities -->
             <div class="flex items-center space-x-1">
                 <button class="flex flex-col items-center p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 min-w-[50px]">
-                    <span class="text-lg mb-1">🏷️</span><span>Tags</span>
+                    <img src="icons/tag.svg" class="w-5 h-5 mb-1 block dark:hidden" alt="Tags">
+                    <img src="icons/tag-wh.svg" class="w-5 h-5 mb-1 hidden dark:block" alt="Tags">
+                    <span>Tags</span>
                 </button>
                 <button class="flex flex-col items-center p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 min-w-[50px]">
-                    <span class="text-lg mb-1">🖨️</span><span>Print</span>
+                    <img src="icons/printer.svg" class="w-5 h-5 mb-1 block dark:hidden" alt="Print">
+                    <img src="icons/printer-wh.svg" class="w-5 h-5 mb-1 hidden dark:block" alt="Print">
+                    <span>Print</span>
                 </button>
             </div>
         </div>
@@ -192,18 +222,42 @@
             </div>
             <div id="list-favorites" class="overflow-hidden">
                 <div class="px-4 py-2 cursor-pointer flex justify-between font-semibold text-outbook dark:text-blue-400 bg-gray-200 dark:bg-gray-700">
-                    <div class="flex items-center"><span class="mr-2 opacity-70">📥</span> <span class="sidebar-text">Inbox</span></div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 mr-2 opacity-70 shrink-0">
+                            <img src="icons/inbox.svg" class="w-full h-full block dark:hidden" alt="Inbox">
+                            <img src="icons/inbox-wh.svg" class="w-full h-full hidden dark:block" alt="Inbox">
+                        </div>
+                        <span class="sidebar-text">Inbox</span>
+                    </div>
                     <span class="sidebar-text text-xs bg-outbook text-white px-1.5 rounded-full flex items-center" id="inbox-badge">0</span>
                 </div>
                 <div class="px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer flex justify-between text-gray-700 dark:text-gray-300">
-                    <div class="flex items-center"><span class="mr-2 opacity-70">🗑️</span> <span class="sidebar-text">Deleted</span></div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 mr-2 opacity-70 shrink-0">
+                            <img src="icons/trash-2.svg" class="w-full h-full block dark:hidden" alt="Deleted">
+                            <img src="icons/trash-2-wh.svg" class="w-full h-full hidden dark:block" alt="Deleted">
+                        </div>
+                        <span class="sidebar-text">Deleted</span>
+                    </div>
                 </div>
                 <div class="px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer flex justify-between text-gray-700 dark:text-gray-300">
-                    <div class="flex items-center"><span class="mr-2 opacity-70">📁</span> <span class="sidebar-text truncate max-w-[120px]">Important</span></div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 mr-2 opacity-70 shrink-0">
+                            <img src="icons/user.svg" class="w-full h-full block dark:hidden" alt="User">
+                            <img src="icons/user-wh.svg" class="w-full h-full hidden dark:block" alt="User">
+                        </div>
+                        <span class="sidebar-text truncate max-w-[120px]">Important</span>
+                    </div>
                     <span class="sidebar-text text-xs text-outbook dark:text-blue-400 font-semibold">4</span>
                 </div>
                 <div class="px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer flex justify-between text-gray-700 dark:text-gray-300">
-                    <div class="flex items-center"><span class="mr-2 opacity-70">📁</span> <span class="sidebar-text truncate max-w-[120px]">Annual Budget</span></div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 mr-2 opacity-70 shrink-0">
+                            <img src="icons/folder.svg" class="w-full h-full block dark:hidden" alt="Folder">
+                            <img src="icons/folder-wh.svg" class="w-full h-full hidden dark:block" alt="Folder">
+                        </div>
+                        <span class="sidebar-text truncate max-w-[120px]">Annual Budget</span>
+                    </div>
                 </div>
             </div>
 
@@ -214,26 +268,60 @@
             </div>
             <div id="list-folders" class="overflow-hidden">
                 <div class="px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer flex justify-between text-gray-700 dark:text-gray-300">
-                    <div class="flex items-center"><span class="mr-2 opacity-70">📥</span> <span class="sidebar-text">Inbox</span></div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 mr-2 opacity-70 shrink-0">
+                            <img src="icons/inbox.svg" class="w-full h-full block dark:hidden" alt="Inbox">
+                            <img src="icons/inbox-wh.svg" class="w-full h-full hidden dark:block" alt="Inbox">
+                        </div>
+                        <span class="sidebar-text">Inbox</span>
+                    </div>
                     <span class="sidebar-text text-xs font-semibold text-outbook dark:text-blue-400">17</span>
                 </div>
                 <div class="px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer flex justify-between text-gray-700 dark:text-gray-300">
-                    <div class="flex items-center"><span class="mr-2 opacity-70">🚫</span> <span class="sidebar-text">Junk</span></div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 mr-2 opacity-70 shrink-0">
+                            <img src="icons/ban.svg" class="w-full h-full block dark:hidden" alt="Junk">
+                            <img src="icons/ban-wh.svg" class="w-full h-full hidden dark:block" alt="Junk">
+                        </div>
+                        <span class="sidebar-text">Junk</span>
+                    </div>
                 </div>
                 <div class="px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer flex justify-between text-gray-700 dark:text-gray-300">
-                    <div class="flex items-center"><span class="mr-2 opacity-70">📤</span> <span class="sidebar-text">Sent</span></div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 mr-2 opacity-70 shrink-0">
+                            <img src="icons/send.svg" class="w-full h-full block dark:hidden" alt="Sent">
+                            <img src="icons/send-wh.svg" class="w-full h-full hidden dark:block" alt="Sent">
+                        </div>
+                        <span class="sidebar-text">Sent</span>
+                    </div>
                 </div>
                 <div class="px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer flex justify-between text-gray-700 dark:text-gray-300">
-                    <div class="flex items-center"><span class="mr-2 opacity-70">🗑️</span> <span class="sidebar-text">Deleted</span></div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 mr-2 opacity-70 shrink-0">
+                            <img src="icons/trash-2.svg" class="w-full h-full block dark:hidden" alt="Deleted">
+                            <img src="icons/trash-2-wh.svg" class="w-full h-full hidden dark:block" alt="Deleted">
+                        </div>
+                        <span class="sidebar-text">Deleted</span>
+                    </div>
                 </div>
                 <div class="px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer flex justify-between text-gray-700 dark:text-gray-300">
-                    <div class="flex items-center"><span class="mr-2 opacity-70">📦</span> <span class="sidebar-text">Archive</span></div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 mr-2 opacity-70 shrink-0">
+                            <img src="icons/archive.svg" class="w-full h-full block dark:hidden" alt="Archive">
+                            <img src="icons/archive-wh.svg" class="w-full h-full hidden dark:block" alt="Archive">
+                        </div>
+                        <span class="sidebar-text">Archive</span>
+                    </div>
                 </div>
             </div>
             
             <div class="mt-auto mb-2 border-t border-gray-200 dark:border-darkBorder pt-2 shrink-0">
                 <div id="nav-about" class="px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer flex items-center text-gray-600 dark:text-gray-400 font-medium">
-                    <span class="mr-2">ℹ️</span> <span class="sidebar-text">About Outbook</span>
+                    <div class="w-4 h-4 mr-2 opacity-70 shrink-0">
+                        <img src="icons/info.svg" class="w-full h-full block dark:hidden" alt="Info">
+                        <img src="icons/info-wh.svg" class="w-full h-full hidden dark:block" alt="Info">
+                    </div>
+                    <span class="sidebar-text">About Outbook</span>
                 </div>
             </div>
         </nav>
@@ -280,11 +368,19 @@
 
             <!-- Reader Toolbar -->
             <div class="h-12 border-b border-gray-200 dark:border-darkBorder flex items-center px-4 space-x-2 md:space-x-4 bg-gray-50 dark:bg-darkPanel text-sm shrink-0 hidden" id="reader-toolbar">
-                <button id="btn-prev-page" class="px-2 md:px-3 py-1.5 hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-outbook dark:text-blue-400 font-medium" title="Previous Page (Key: J, Left Arrow, or Scroll Up)">
-                    <span class="mr-1">↩️</span> <span class="hidden md:inline">Reply</span>
+                <button id="btn-prev-page" class="px-2 md:px-3 py-1.5 hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-outbook dark:text-blue-400 font-medium flex items-center" title="Previous Page (Key: J, Left Arrow, or Scroll Up)">
+                    <div class="w-4 h-4 mr-1 shrink-0">
+                        <img src="icons/reply.svg" class="w-full h-full block dark:hidden" alt="Reply">
+                        <img src="icons/reply-wh.svg" class="w-full h-full hidden dark:block" alt="Reply">
+                    </div>
+                    <span class="hidden md:inline">Reply</span>
                 </button>
-                <button id="btn-next-page" class="px-2 md:px-3 py-1.5 hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-outbook dark:text-blue-400 font-medium" title="Next Page (Key: K, Right Arrow, or Scroll Down)">
-                    <span class="mr-1">↪️</span> <span class="hidden md:inline">Forward</span>
+                <button id="btn-next-page" class="px-2 md:px-3 py-1.5 hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-outbook dark:text-blue-400 font-medium flex items-center" title="Next Page (Key: K, Right Arrow, or Scroll Down)">
+                    <div class="w-4 h-4 mr-1 shrink-0">
+                        <img src="icons/forward.svg" class="w-full h-full block dark:hidden" alt="Forward">
+                        <img src="icons/forward-wh.svg" class="w-full h-full hidden dark:block" alt="Forward">
+                    </div>
+                    <span class="hidden md:inline">Forward</span>
                 </button>
                 
                 <div class="h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
@@ -313,7 +409,10 @@
                 <h2 class="text-2xl font-semibold mb-2 text-gray-900 dark:text-white truncate" id="display-title">Book Title</h2>
                 <div class="text-sm flex items-center justify-between text-gray-600 dark:text-gray-400">
                     <div class="flex items-center space-x-2">
-                        <div class="h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-lg">👤</div>
+                        <div class="h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                            <img src="icons/user.svg" class="w-4 h-4 block dark:hidden" alt="Author">
+                            <img src="icons/user-wh.svg" class="w-4 h-4 hidden dark:block" alt="Author">
+                        </div>
                         <span id="display-author" class="font-medium text-gray-900 dark:text-gray-200 truncate max-w-[200px]">Author Name</span>
                     </div>
                     <!-- Inline Editable Status Area (Updated by JS) -->
