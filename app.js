@@ -225,7 +225,7 @@ function loadBook(bookObj) {
     activeBook.outbookId = bookObj.id; 
 
     // Project Gutenberg Disclaimer Hook
-    if (bookObj.id === 'sys-odyssey') {
+    if (bookObj.id === 'sys-odyssey' && !localStorage.getItem('gutenberg_acknowledged')) {
         el.gutenbergModal.classList.remove('hidden');
     }
 
@@ -401,6 +401,7 @@ if (!localStorage.getItem('epub_disclaimer_agreed')) {
 
 // Gutenberg Acknowledgement Hook
 el.gutenbergCloseBtn.addEventListener('click', () => {
+    localStorage.setItem('gutenberg_acknowledged', 'true');
     el.gutenbergModal.classList.add('hidden');
 });
 
