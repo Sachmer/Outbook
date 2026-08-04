@@ -107,7 +107,7 @@ const exampleBook = {
 const aboutOutbookData = {
     id: 'about-outbook',
     author: 'Outbook Administration',
-    title: 'Welcome to Outbook 1.0 - Setup & Guidelines',
+    title: 'Welcome to Outbook - Setup & Guidelines',
     dateStr: 'System',
     type: 'system',
     content: `
@@ -139,7 +139,7 @@ const aboutOutbookData = {
                     <tr class="border-b dark:border-gray-700"><td class="py-2">Upload Book</td><td class="py-2">Click <code>+ New message</code></td></tr>
                     <tr class="border-b dark:border-gray-700"><td class="py-2">Next Page</td><td class="py-2"><code>Forward</code> button, <code>K</code> key, or <code>Scroll Down</code></td></tr>
                     <tr class="border-b dark:border-gray-700"><td class="py-2">Previous Page</td><td class="py-2"><code>Reply</code> button, <code>J</code> key, or <code>Scroll Up</code></td></tr>
-                    <tr><td class="py-2 text-outbook dark:text-blue-400 font-bold">Boss Key (Panic)</td><td class="py-2 font-bold">Press <code>Escape</code></td></tr>
+                    <tr><td class="py-2 text-outbook dark:text-blue-400 font-bold">Panic Key</td><td class="py-2 font-bold">Press <code>Escape</code></td></tr>
                 </table>
             </div>
 
