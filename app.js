@@ -19,6 +19,8 @@ const el = {
     disclaimerModal: document.getElementById('disclaimer-modal'),
     agreeCheckbox: document.getElementById('agree-checkbox'),
     acceptBtn: document.getElementById('accept-btn'),
+    gutenbergModal: document.getElementById('gutenberg-modal'),
+    gutenbergCloseBtn: document.getElementById('gutenberg-close-btn'),
     capacityModal: document.getElementById('capacity-modal'),
     capacityCloseBtn: document.getElementById('capacity-close-btn'),
     bossKeyCover: document.getElementById('boss-key-cover'),
@@ -222,6 +224,11 @@ function loadBook(bookObj) {
     activeBook = ePub(bookSource);
     activeBook.outbookId = bookObj.id; 
 
+    // Project Gutenberg Disclaimer Hook
+    if (bookObj.id === 'sys-odyssey') {
+        el.gutenbergModal.classList.remove('hidden');
+    }
+
     rendition = activeBook.renderTo("viewer", {
         width: "100%", height: "100%", spread: "none"
     });
@@ -391,6 +398,11 @@ if (!localStorage.getItem('epub_disclaimer_agreed')) {
 } else {
     el.disclaimerModal.classList.add('hidden'); 
 }
+
+// Gutenberg Acknowledgement Hook
+el.gutenbergCloseBtn.addEventListener('click', () => {
+    el.gutenbergModal.classList.add('hidden');
+});
 
 // Global UI Toggles
 function toggleTheme() {
@@ -603,7 +615,11 @@ function createListItem(itemData, isBook) {
                 <span class="${authorWeight} text-[15px] truncate">${itemData.author}</span>
             </div>
             <span class="text-xs ${isBook ? 'text-outbook dark:text-blue-400 font-semibold' : 'text-gray-500'} shrink-0 group-hover:hidden">${itemData.dateStr}</span>
-            ${isBook && !itemData.isSystem ? `<button class="hidden group-hover:block text-red-500 text-xs shrink-0 delete-btn z-10" title="Delete Book">🗑️</button>` : ''}
+            ${isBook && !itemData.isSystem ? `
+                <button class="hidden group-hover:block text-gray-500 hover:text-red-500 transition-colors shrink-0 delete-btn z-10" title="Delete Book">
+                    <img src="icons/trash-2.svg" class="w-4 h-4 block dark:hidden" alt="Delete">
+                    <img src="icons/trash-2-wh.svg" class="w-4 h-4 hidden dark:block" alt="Delete">
+                </button>` : ''}
         </div>
         <div class="text-sm ${titleClass} truncate mb-1 ${isUnread ? 'font-semibold' : ''}">${itemData.title}</div>
         <div class="text-sm text-gray-500 dark:text-gray-400 truncate">${snippetText}</div>
