@@ -3,8 +3,7 @@
 A local-first ePub reader disguised as a familiar inbox. No uploads, no accounts, no server.
 
 ## Features
-- **Corporate Disguise:** Redesigned interface featuring Office-style ribbon toolbars, favorites, and realistic dummy inbox items with literature easter eggs.
-- **Draggable Split-Pane:** Custom-resize your middle inbox pane up to 75% of your screen width. Works flawlessly alongside the collapsible sidebar.
+- **Disguise:** Redesigned interface featuring Office-style ribbon toolbars, favorites, and realistic dummy inbox items with literature easter eggs.
 - **Customizer Toolbar:** Adjust fonts (Segoe UI, Georgia, Inter, Courier), font sizing (A- / A+), and line spacing on the fly.
 - **Enhanced Reading Metrics:** Real-time page counters, exact completion percentages, and a visual progress bar fill beneath the header.
 - **Persistent Local Caching:** Powered by IndexedDB and `localStorage` so your books and exact reading position persist across browser refreshes without server storage.
