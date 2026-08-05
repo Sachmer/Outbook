@@ -148,7 +148,7 @@
             </div>
             <!-- Group 2: Actions -->
             <div class="flex items-center space-x-1 border-r pr-4 border-gray-300 dark:border-gray-600">
-                <button class="flex flex-col items-center p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 min-w-[50px]">
+                <button id="btn-ribbon-delete" class="flex flex-col items-center p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 min-w-[50px]">
                     <img src="icons/trash-2.svg" class="w-5 h-5 mb-1 block dark:hidden" alt="Delete">
                     <img src="icons/trash-2-wh.svg" class="w-5 h-5 mb-1 hidden dark:block" alt="Delete">
                     <span>Delete</span>
@@ -158,7 +158,7 @@
                     <img src="icons/archive-wh.svg" class="w-5 h-5 mb-1 hidden dark:block" alt="Archive">
                     <span>Archive</span>
                 </button>
-                <button class="flex flex-col items-center p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 min-w-[50px]">
+                <button id="btn-ribbon-junk" class="flex flex-col items-center p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 min-w-[50px]">
                     <img src="icons/ban.svg" class="w-5 h-5 mb-1 block dark:hidden" alt="Junk">
                     <img src="icons/ban-wh.svg" class="w-5 h-5 mb-1 hidden dark:block" alt="Junk">
                     <span>Junk</span>
@@ -166,12 +166,12 @@
             </div>
             <!-- Group 3: Respond -->
             <div class="flex items-center space-x-1 border-r pr-4 border-gray-300 dark:border-gray-600">
-                <button class="flex flex-col items-center p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 min-w-[50px]">
+                <button id="btn-ribbon-reply" class="flex flex-col items-center p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 min-w-[50px]">
                     <img src="icons/reply.svg" class="w-5 h-5 mb-1 block dark:hidden" alt="Reply">
                     <img src="icons/reply-wh.svg" class="w-5 h-5 mb-1 hidden dark:block" alt="Reply">
                     <span>Reply</span>
                 </button>
-                <button class="flex flex-col items-center p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 min-w-[50px]">
+                <button id="btn-ribbon-forward" class="flex flex-col items-center p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 min-w-[50px]">
                     <img src="icons/forward.svg" class="w-5 h-5 mb-1 block dark:hidden" alt="Forward">
                     <img src="icons/forward-wh.svg" class="w-5 h-5 mb-1 hidden dark:block" alt="Forward">
                     <span>Forward</span>
@@ -179,12 +179,12 @@
             </div>
             <!-- Group 4: Tags & Utilities -->
             <div class="flex items-center space-x-1">
-                <button class="flex flex-col items-center p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 min-w-[50px]">
+                <button id="btn-ribbon-tag" class="flex flex-col items-center p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 min-w-[50px]">
                     <img src="icons/tag.svg" class="w-5 h-5 mb-1 block dark:hidden" alt="Tags">
                     <img src="icons/tag-wh.svg" class="w-5 h-5 mb-1 hidden dark:block" alt="Tags">
                     <span>Tags</span>
                 </button>
-                <button class="flex flex-col items-center p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 min-w-[50px]">
+                <button id="btn-ribbon-print" class="flex flex-col items-center p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 min-w-[50px]">
                     <img src="icons/printer.svg" class="w-5 h-5 mb-1 block dark:hidden" alt="Print">
                     <img src="icons/printer-wh.svg" class="w-5 h-5 mb-1 hidden dark:block" alt="Print">
                     <span>Print</span>
@@ -387,7 +387,7 @@
                 
                 <div class="h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
 
-                <select id="font-select" class="bg-transparent border border-gray-300 dark:border-darkBorder rounded px-1 md:px-2 py-1 outline-none dark:bg-darkBg text-gray-700 dark:text-gray-200 cursor-pointer text-xs md:text-sm">
+                <select id="font-select" title="Change Font Family" class="bg-transparent border border-gray-300 dark:border-darkBorder rounded px-1 md:px-2 py-1 outline-none dark:bg-darkBg text-gray-700 dark:text-gray-200 cursor-pointer text-xs md:text-sm">
                     <option value="Segoe UI">Segoe UI</option>
                     <option value="Georgia">Georgia</option>
                     <option value="Inter">Inter</option>
@@ -395,15 +395,28 @@
                 </select>
 
                 <div class="flex items-center border border-gray-300 dark:border-darkBorder rounded overflow-hidden text-xs md:text-sm">
-                    <button id="size-down" class="px-2 md:px-3 py-1 hover:bg-gray-200 dark:hover:bg-gray-600 border-r border-gray-300 dark:border-darkBorder">A-</button>
-                    <button id="size-up" class="px-2 md:px-3 py-1 hover:bg-gray-200 dark:hover:bg-gray-600">A+</button>
+                    <button id="size-down" title="Decrease Text Size" class="px-2 md:px-3 py-1 hover:bg-gray-200 dark:hover:bg-gray-600 border-r border-gray-300 dark:border-darkBorder">A-</button>
+                    <button id="size-up" title="Increase Text Size" class="px-2 md:px-3 py-1 hover:bg-gray-200 dark:hover:bg-gray-600">A+</button>
                 </div>
 
-                <select id="spacing-select" class="bg-transparent border border-gray-300 dark:border-darkBorder rounded px-1 md:px-2 py-1 outline-none dark:bg-darkBg text-gray-700 dark:text-gray-200 cursor-pointer hidden md:block text-sm">
+                <select id="spacing-select" title="Change Line Spacing" class="bg-transparent border border-gray-300 dark:border-darkBorder rounded px-1 md:px-2 py-1 outline-none dark:bg-darkBg text-gray-700 dark:text-gray-200 cursor-pointer hidden md:block text-sm">
                     <option value="1.2">Spacing: Tight</option>
                     <option value="1.6" selected>Spacing: Normal</option>
                     <option value="2.0">Spacing: Loose</option>
                 </select>
+
+                <!-- NEW: Stealth & Layout Toggles -->
+                <div class="h-6 w-px bg-gray-300 dark:bg-gray-600 ml-2 md:ml-4"></div>
+                <div class="flex items-center space-x-1 ml-2 md:ml-4">
+                    <button id="btn-toggle-images" class="px-2 py-1.5 hover:bg-gray-200 dark:hover:bg-gray-600 rounded flex items-center" title="Hide/Show Images (Stealth Mode)">
+                        <img src="icons/image-show.svg" class="w-4 h-4 block dark:hidden" alt="Images">
+                        <img src="icons/image-show-wh.svg" class="w-4 h-4 hidden dark:block" alt="Images">
+                    </button>
+                    <button id="btn-toggle-panes" class="px-2 py-1.5 hover:bg-gray-200 dark:hover:bg-gray-600 rounded flex items-center" title="Toggle Single/Double Page Layout">
+                        <img src="icons/layout-single.svg" class="w-4 h-4 block dark:hidden" alt="Layout">
+                        <img src="icons/layout-single-wh.svg" class="w-4 h-4 hidden dark:block" alt="Layout">
+                    </button>
+                </div>
             </div>
 
             <!-- Email Style Header & Progress Bar -->
