@@ -9,7 +9,12 @@ let currentFontSize = 100;
 let isHidden = true; 
 let isDark = false;
 let isResizing = false;
-let wheelLock = false; // Prevents rapid-fire scroll wheel pagination
+let wheelLock = false; 
+
+// New Reader & UI States
+let hideImages = false;
+let isTwoPane = false;
+let currentActiveId = null; // Tracks currently selected list item
 
 // ==========================================================================
 // SECTION: DOM Cache
@@ -40,7 +45,15 @@ const el = {
     btnViewTheme: document.getElementById('btn-view-theme'),
     btnViewToolbar: document.getElementById('btn-view-toolbar'),
     btnViewBossKey: document.getElementById('btn-view-bosskey'),
+    
+    // Ribbon Actions
     btnNewMessageRibbon: document.getElementById('btn-new-message-ribbon'),
+    btnRibbonDelete: document.getElementById('btn-ribbon-delete'),
+    btnRibbonJunk: document.getElementById('btn-ribbon-junk'),
+    btnRibbonReply: document.getElementById('btn-ribbon-reply'),
+    btnRibbonForward: document.getElementById('btn-ribbon-forward'),
+    btnRibbonTag: document.getElementById('btn-ribbon-tag'),
+    btnRibbonPrint: document.getElementById('btn-ribbon-print'),
 
     // Sidebar
     navSidebar: document.getElementById('nav-sidebar'),
@@ -74,7 +87,11 @@ const el = {
     fontSelect: document.getElementById('font-select'),
     spacingSelect: document.getElementById('spacing-select'),
     sizeUp: document.getElementById('size-up'),
-    sizeDown: document.getElementById('size-down')
+    sizeDown: document.getElementById('size-down'),
+    
+    // Stealth & Layout Tools
+    btnToggleImages: document.getElementById('btn-toggle-images'),
+    btnTogglePanes: document.getElementById('btn-toggle-panes')
 };
 
 // ==========================================================================
@@ -142,8 +159,7 @@ const aboutOutbookData = {
                     <tr><td class="py-2 text-outbook dark:text-blue-400 font-bold">Panic Key</td><td class="py-2 font-bold">Press <code>Escape</code></td></tr>
                 </table>
             </div>
-
-            <!-- BUY ME A COFFEE IMAGE BUTTON -->
+            
             <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
                 <h4 class="font-bold mb-2">☕ Support Outbook</h4>
                 <p class="text-sm mb-4 text-gray-600 dark:text-gray-400">If you like this project and want to keep it alive and ad-free, consider buying me a coffee!</p>
@@ -155,6 +171,11 @@ const aboutOutbookData = {
         </div>
     `
 };
+
+// Helper: Get combined items array for sequential navigation
+function getAllListItems() {
+    return [...myBooks, exampleBook, ...fakeEmails];
+}
 
 // ==========================================================================
 // SECTION: Storage
@@ -224,13 +245,14 @@ function loadBook(bookObj) {
     activeBook = ePub(bookSource);
     activeBook.outbookId = bookObj.id; 
 
-    // Project Gutenberg Disclaimer Hook
     if (bookObj.id === 'sys-odyssey' && !localStorage.getItem('gutenberg_acknowledged')) {
         el.gutenbergModal.classList.remove('hidden');
     }
 
     rendition = activeBook.renderTo("viewer", {
-        width: "100%", height: "100%", spread: "none"
+        width: "100%", 
+        height: "100%", 
+        spread: isTwoPane ? "both" : "none" // Apply current layout state
     });
 
     const savedLocation = localStorage.getItem(`epub_cfi_${bookObj.id}`);
@@ -240,7 +262,6 @@ function loadBook(bookObj) {
         rendition.display();
     }
     
-    // Core Event Hooks
     rendition.on("rendered", () => { applyFormatting(); });
     rendition.on("relocated", (location) => { updateProgressMetric(location); });
     
@@ -250,7 +271,6 @@ function loadBook(bookObj) {
         if (e.key === 'Escape') toggleBossKey();
     });
 
-    // Scroll Wheel Pagination Hook (Attached to iframe contents)
     rendition.hooks.content.register((contents) => {
         contents.document.addEventListener('wheel', handleScrollPagination, { passive: true });
     });
@@ -266,14 +286,11 @@ function loadBook(bookObj) {
 
 function handleScrollPagination(e) {
     if (isHidden || wheelLock) return;
-    
-    // Only trigger page turn on significant vertical scrolls
     if (Math.abs(e.deltaY) > 10) {
         wheelLock = true;
         if (e.deltaY > 0) navigatePage('next');
         else if (e.deltaY < 0) navigatePage('prev');
-        
-        setTimeout(() => { wheelLock = false; }, 250); // 250ms debounce
+        setTimeout(() => { wheelLock = false; }, 250);
     }
 }
 
@@ -287,7 +304,6 @@ function updateProgressMetric(location) {
     const currentPage = activeBook.locations.locationFromCfi(location.start.cfi);
     const totalPages = activeBook.locations.total;
 
-    // Build the inline editable page jumper
     el.displayStatusContainer.innerHTML = `
         <span class="mr-1">${percentage}% Complete &bull; Page </span>
         <input type="number" id="page-jump-input" value="${currentPage}" min="1" max="${totalPages}" 
@@ -296,7 +312,6 @@ function updateProgressMetric(location) {
     `;
     el.progressBarFill.style.width = `${percentage}%`;
 
-    // Attach listener for the manual page jump
     const pageInput = document.getElementById('page-jump-input');
     if (pageInput) {
         pageInput.addEventListener('keydown', (e) => {
@@ -305,23 +320,17 @@ function updateProgressMetric(location) {
                 jumpToPage(pageInput.value);
             }
         });
-        pageInput.addEventListener('blur', () => {
-            jumpToPage(pageInput.value); // Jump if they click away after typing
-        });
+        pageInput.addEventListener('blur', () => jumpToPage(pageInput.value));
     }
 }
 
 function jumpToPage(pageNum) {
     const page = parseInt(pageNum, 10);
     if (isNaN(page) || page < 1 || !activeBook || !activeBook.locations) return;
-    
     const total = activeBook.locations.total;
-    const targetPage = Math.max(1, Math.min(page, total)); // Clamp between 1 and total
+    const targetPage = Math.max(1, Math.min(page, total)); 
     const cfi = activeBook.locations.cfiFromLocation(targetPage);
-    
-    if (cfi && rendition) {
-        rendition.display(cfi);
-    }
+    if (cfi && rendition) rendition.display(cfi);
 }
 
 function updateEpubTheme() {
@@ -329,19 +338,14 @@ function updateEpubTheme() {
     const bgColor = isDark ? '#202020' : '#ffffff';
     const textColor = isDark ? '#f3f2f1' : '#252423';
     
-    // Create a theme that aggressively applies proper text colors, crucial for Dark Mode
+    // Inject hide rules dynamically based on state
+    const imgDisplay = hideImages ? 'none !important' : 'inline-block !important';
+    
     rendition.themes.register("currentTheme", {
-        "body": { 
-            "background": `${bgColor} !important`, 
-            "color": `${textColor} !important` 
-        },
-        "p, div, span, h1, h2, h3, h4, h5, h6, li": { 
-            "color": `${textColor} !important` 
-        },
-        "a": { 
-            "color": "#0078D4 !important", 
-            "text-decoration": "none !important" 
-        }
+        "body": { "background": `${bgColor} !important`, "color": `${textColor} !important` },
+        "p, div, span, h1, h2, h3, h4, h5, h6, li": { "color": `${textColor} !important` },
+        "a": { "color": "#0078D4 !important", "text-decoration": "none !important" },
+        "img, svg, picture": { "display": imgDisplay }
     });
     rendition.themes.select("currentTheme");
 }
@@ -360,8 +364,6 @@ function applyFormatting() {
         "div": { "line-height": `${spacing} !important` }
     });
     rendition.themes.select("spacing");
-    
-    // Immediately refresh colors after layout formatting
     updateEpubTheme(); 
 }
 
@@ -376,7 +378,7 @@ function navigatePage(direction) {
 // SECTION: UI & Interactivity
 // ==========================================================================
 
-// Initial Disclaimer Modal
+// Modals
 if (!localStorage.getItem('epub_disclaimer_agreed')) {
     el.agreeCheckbox.addEventListener('change', (e) => {
         if (e.target.checked) {
@@ -395,55 +397,18 @@ if (!localStorage.getItem('epub_disclaimer_agreed')) {
         localStorage.setItem('epub_disclaimer_agreed', 'true');
         el.disclaimerModal.classList.add('hidden');
     });
-} else {
-    el.disclaimerModal.classList.add('hidden'); 
-}
+} else { el.disclaimerModal.classList.add('hidden'); }
 
-// Gutenberg Acknowledgement Hook
 el.gutenbergCloseBtn.addEventListener('click', () => {
     localStorage.setItem('gutenberg_acknowledged', 'true');
     el.gutenbergModal.classList.add('hidden');
 });
 
-// Global UI Toggles
-function toggleTheme() {
-    isDark = !isDark;
-    document.documentElement.classList.toggle('dark', isDark);
-    applyFormatting();
-}
-
-function toggleBossKey() {
-    isHidden = !isHidden;
-    if (isHidden) {
-        el.bossKeyCover.classList.remove('hidden');
-    } else {
-        if (myBooks.length > 0 || !el.staticViewer.classList.contains('hidden')) {
-            el.bossKeyCover.classList.add('hidden');
-        } else {
-            isHidden = true; // Stay hidden if empty
-        }
-    }
-}
-
-el.themeToggle.addEventListener('click', toggleTheme);
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') toggleBossKey();
-    if (rendition && !isHidden) {
-        if (e.key === 'ArrowRight' || e.key === 'j' || e.key === 'J') navigatePage('next');
-        if (e.key === 'ArrowLeft' || e.key === 'k' || e.key === 'K') navigatePage('prev');
-    }
-});
-
-// Scroll Wheel on main Viewer Container (Catches scrolls outside the iframe margins)
-el.viewer.addEventListener('wheel', handleScrollPagination, { passive: true });
-
-// Resizer Drag Logic
+// Resizer Logic
 el.resizer.addEventListener('mousedown', () => {
     isResizing = true;
     document.body.style.cursor = 'col-resize';
     document.body.style.userSelect = 'none';
-    
-    // Prevent iframes from swallowing the mouse event during fast horizontal drags
     el.viewer.style.pointerEvents = 'none';
     el.staticViewer.style.pointerEvents = 'none';
 });
@@ -462,23 +427,144 @@ document.addEventListener('mouseup', () => {
         isResizing = false;
         document.body.style.cursor = 'default';
         document.body.style.userSelect = '';
-        
-        // Restore pointer events so user can click inside the book again
         el.viewer.style.pointerEvents = 'auto'; 
         el.staticViewer.style.pointerEvents = 'auto';
-        
         if (rendition) rendition.resize();
     }
 });
 
-// Sidebar Collapsing
+// Stealth & Layout Actions (Reader Toolbar)
+el.btnToggleImages.addEventListener('click', () => {
+    hideImages = !hideImages;
+    const prefix = hideImages ? 'image-hide' : 'image-show';
+    el.btnToggleImages.innerHTML = `
+        <img src="icons/${prefix}.svg" class="w-4 h-4 block dark:hidden" alt="Images">
+        <img src="icons/${prefix}-wh.svg" class="w-4 h-4 hidden dark:block" alt="Images">
+    `;
+    applyFormatting(); 
+});
+
+el.btnTogglePanes.addEventListener('click', () => {
+    if (!rendition) return;
+    isTwoPane = !isTwoPane;
+    const prefix = isTwoPane ? 'layout-double' : 'layout-single';
+    el.btnTogglePanes.innerHTML = `
+        <img src="icons/${prefix}.svg" class="w-4 h-4 block dark:hidden" alt="Layout">
+        <img src="icons/${prefix}-wh.svg" class="w-4 h-4 hidden dark:block" alt="Layout">
+    `;
+    rendition.spread(isTwoPane ? "both" : "none");
+    rendition.resize();
+});
+
+// Ribbon Actions
+function handleItemDelete() {
+    if (!currentActiveId) return;
+    
+    if (myBooks.find(b => b.id === currentActiveId)) {
+        deleteBook(currentActiveId);
+    } else if (currentActiveId === 'sys-odyssey') {
+        alert("System files (The Odyssey) cannot be permanently deleted.");
+    } else if (currentActiveId !== 'about-outbook') {
+        const fIdx = fakeEmails.findIndex(e => e.id === currentActiveId);
+        if (fIdx > -1) fakeEmails.splice(fIdx, 1);
+        el.staticViewer.innerHTML = '';
+        loadStaticContent(aboutOutbookData);
+        renderBookList();
+    }
+}
+
+el.btnRibbonDelete.addEventListener('click', handleItemDelete);
+el.btnRibbonJunk.addEventListener('click', () => {
+    if (!currentActiveId) return;
+    alert("Item marked as Junk and removed from Inbox.");
+    handleItemDelete(); // Reuse delete to clear it away
+});
+
+el.btnRibbonPrint.addEventListener('click', () => {
+    window.print();
+});
+
+el.btnRibbonTag.addEventListener('click', () => {
+    if (!currentActiveId || currentActiveId === 'about-outbook' || currentActiveId === 'sys-odyssey') return;
+    
+    const allItems = getAllListItems();
+    const item = allItems.find(i => i.id === currentActiveId);
+    if (!item) return;
+
+    // Cycle through Category Tags
+    const colors = ['red', 'blue', 'green', undefined];
+    const currentIdx = colors.indexOf(item.tagColor);
+    item.tagColor = colors[(currentIdx + 1) % colors.length];
+
+    if (myBooks.find(b => b.id === currentActiveId)) {
+        saveBookToDB(item);
+    }
+    renderBookList();
+});
+
+function navigateList(direction) {
+    const allItems = getAllListItems();
+    
+    if (!currentActiveId || currentActiveId === 'about-outbook') {
+        if (allItems.length > 0) {
+            allItems[0].type === 'epub' ? loadBook(allItems[0]) : loadStaticContent(allItems[0]);
+        }
+        return;
+    }
+
+    const currentIdx = allItems.findIndex(i => i.id === currentActiveId);
+    if (currentIdx === -1) return;
+
+    let nextIdx = direction === 'next' ? currentIdx + 1 : currentIdx - 1;
+    if (nextIdx >= allItems.length) nextIdx = 0; // Wrap to start
+    if (nextIdx < 0) nextIdx = allItems.length - 1; // Wrap to end
+
+    const nextItem = allItems[nextIdx];
+    if (nextItem.type === 'epub') loadBook(nextItem);
+    else loadStaticContent(nextItem);
+}
+
+el.btnRibbonReply.addEventListener('click', () => navigateList('prev'));
+el.btnRibbonForward.addEventListener('click', () => navigateList('next'));
+
+// Standard View / Global Toggles
+function toggleTheme() {
+    isDark = !isDark;
+    document.documentElement.classList.toggle('dark', isDark);
+    applyFormatting();
+}
+
+function toggleBossKey() {
+    isHidden = !isHidden;
+    if (isHidden) {
+        el.bossKeyCover.classList.remove('hidden');
+    } else {
+        if (myBooks.length > 0 || !el.staticViewer.classList.contains('hidden')) {
+            el.bossKeyCover.classList.add('hidden');
+        } else { isHidden = true; }
+    }
+}
+
+el.themeToggle.addEventListener('click', toggleTheme);
+el.btnViewTheme.addEventListener('click', toggleTheme);
+el.btnViewToolbar.addEventListener('click', () => el.readerToolbar.classList.toggle('hidden'));
+el.btnViewBossKey.addEventListener('click', toggleBossKey);
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') toggleBossKey();
+    if (rendition && !isHidden) {
+        if (e.key === 'ArrowRight' || e.key === 'j' || e.key === 'J') navigatePage('next');
+        if (e.key === 'ArrowLeft' || e.key === 'k' || e.key === 'K') navigatePage('prev');
+    }
+});
+
+// Sidebar & Ribbons
 el.sidebarToggle.addEventListener('click', () => {
     el.navSidebar.classList.toggle('w-56');
     el.navSidebar.classList.toggle('w-16'); 
     el.sidebarTexts.forEach(el => el.classList.toggle('hidden'));
 });
 
-// Sidebar Accordions
 function setupAccordion(headerEl, listEl) {
     const arrow = headerEl.querySelector('.arrow');
     headerEl.addEventListener('click', () => {
@@ -489,13 +575,11 @@ function setupAccordion(headerEl, listEl) {
 setupAccordion(el.headerFavorites, el.listFavorites);
 setupAccordion(el.headerFolders, el.listFolders);
 
-// Ribbon Interactivity
 function switchRibbonTab(activeTab) {
     el.tabHome.classList.remove('text-outbook', 'font-semibold', 'border-b-2', 'border-outbook', 'pb-1', '-mb-[5px]');
     el.tabHome.classList.add('hover:text-outbook');
     el.tabView.classList.remove('text-outbook', 'font-semibold', 'border-b-2', 'border-outbook', 'pb-1', '-mb-[5px]');
     el.tabView.classList.add('hover:text-outbook');
-
     el.ribbonHome.classList.add('hidden');
     el.ribbonView.classList.add('hidden');
 
@@ -513,12 +597,7 @@ el.tabHome.addEventListener('click', () => switchRibbonTab('home'));
 el.tabView.addEventListener('click', () => switchRibbonTab('view'));
 el.tabHelp.addEventListener('click', () => loadStaticContent(aboutOutbookData));
 
-// View Ribbon Action Hooks
-el.btnViewTheme.addEventListener('click', toggleTheme);
-el.btnViewToolbar.addEventListener('click', () => el.readerToolbar.classList.toggle('hidden'));
-el.btnViewBossKey.addEventListener('click', toggleBossKey);
-
-// Formatting Toolbar hooks
+// Formatting Toolbar Hooks
 el.fontSelect.addEventListener('change', applyFormatting);
 el.spacingSelect.addEventListener('change', applyFormatting);
 el.sizeUp.addEventListener('click', () => { currentFontSize += 10; applyFormatting(); });
@@ -526,7 +605,7 @@ el.sizeDown.addEventListener('click', () => { currentFontSize = Math.max(50, cur
 el.btnNextPage.addEventListener('click', () => navigatePage('next'));
 el.btnPrevPage.addEventListener('click', () => navigatePage('prev'));
 
-// Pre-upload Capacity Check Hook
+// Capacity Check Hook
 function handleUploadClickTrigger(e) {
     if (myBooks.length >= MAX_BOOKS) {
         e.preventDefault();
@@ -539,7 +618,7 @@ el.btnNewMessageMiddle.addEventListener('click', handleUploadClickTrigger);
 el.btnNewMessageRibbon.addEventListener('click', handleUploadClickTrigger);
 el.capacityCloseBtn.addEventListener('click', () => el.capacityModal.classList.add('hidden'));
 
-// Upload Engine
+// File Upload
 function handleBookUpload(e) {
     const file = e.target.files[0];
     if (!file) return;
@@ -551,12 +630,8 @@ function handleBookUpload(e) {
     }
 
     const isDuplicate = myBooks.some(b => b.fileName === file.name && b.size === file.size);
-    if (isDuplicate) {
-        const proceed = confirm("This file appears to already be in your inbox — add it again anyway?");
-        if (!proceed) {
-            e.target.value = '';
-            return;
-        }
+    if (isDuplicate && !confirm("This file appears to already be in your inbox — add it again anyway?")) {
+        e.target.value = ''; return;
     }
 
     const reader = new FileReader();
@@ -574,7 +649,8 @@ function handleBookUpload(e) {
                 data: bookData, 
                 dateStr: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
                 type: 'epub',
-                isUnread: true 
+                isUnread: true,
+                tagColor: undefined // Default state
             };
             
             myBooks.unshift(newBookEntry); 
@@ -608,42 +684,28 @@ function createListItem(itemData, isBook) {
     const titleClass = isBook ? "font-semibold text-outbook dark:text-blue-400" : "text-gray-700 dark:text-gray-300";
     const snippetText = isBook ? "Draft saved. Review required." : itemData.snippet;
     const authorWeight = isUnread ? "font-bold text-gray-900 dark:text-white" : "font-medium text-gray-700 dark:text-gray-300";
-    
+    const tagHTML = itemData.tagColor ? `<div class="tag-dot tag-${itemData.tagColor}"></div>` : '';
+
     item.innerHTML = `
         <div class="flex justify-between items-baseline mb-1 relative">
             <div class="flex items-center truncate pr-2">
                 ${isUnread ? '<div class="w-2 h-2 rounded-full bg-outbook mr-2 shrink-0"></div>' : ''}
+                ${tagHTML}
                 <span class="${authorWeight} text-[15px] truncate">${itemData.author}</span>
             </div>
             <span class="text-xs ${isBook ? 'text-outbook dark:text-blue-400 font-semibold' : 'text-gray-500'} shrink-0 group-hover:hidden">${itemData.dateStr}</span>
-            ${isBook && !itemData.isSystem ? `
-                <button class="hidden group-hover:block text-gray-500 hover:text-red-500 transition-colors shrink-0 delete-btn z-10" title="Delete Book">
-                    <img src="icons/trash-2.svg" class="w-4 h-4 block dark:hidden" alt="Delete">
-                    <img src="icons/trash-2-wh.svg" class="w-4 h-4 hidden dark:block" alt="Delete">
-                </button>` : ''}
         </div>
         <div class="text-sm ${titleClass} truncate mb-1 ${isUnread ? 'font-semibold' : ''}">${itemData.title}</div>
         <div class="text-sm text-gray-500 dark:text-gray-400 truncate">${snippetText}</div>
     `;
-    
-    if(isBook && !itemData.isSystem) {
-        item.querySelector('.delete-btn').addEventListener('click', (e) => {
-            e.stopPropagation(); 
-            deleteBook(itemData.id);
-        });
-    }
 
     item.onclick = () => {
         if (itemData.isUnread) {
             itemData.isUnread = false;
-            if (itemData.isSystem) {
-                localStorage.setItem('sys_odyssey_read', 'true');
-            } else if (isBook) {
-                saveBookToDB(itemData);
-            }
+            if (itemData.isSystem) localStorage.setItem('sys_odyssey_read', 'true');
+            else if (isBook) saveBookToDB(itemData);
             renderBookList();
         }
-
         if (isBook) loadBook(itemData);
         else loadStaticContent(itemData);
     };
@@ -653,6 +715,7 @@ function createListItem(itemData, isBook) {
 el.navAbout.addEventListener('click', () => loadStaticContent(aboutOutbookData));
 
 function setUIState(activeId) {
+    currentActiveId = activeId; // Update tracking ID
     document.querySelectorAll('.email-item').forEach(el => el.classList.replace('border-l-outbook', 'border-l-transparent'));
     const activeItem = document.querySelector(`.email-item[data-id="${activeId}"]`);
     if(activeItem) activeItem.classList.replace('border-l-transparent', 'border-l-outbook');
@@ -671,7 +734,6 @@ function loadStaticContent(dataObj) {
     
     el.displayTitle.innerText = dataObj.title;
     el.displayAuthor.innerText = dataObj.author;
-    
     el.displayStatusContainer.classList.remove("pulse");
     el.displayStatusContainer.innerHTML = "<span>Received</span>";
     
