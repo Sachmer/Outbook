@@ -24,3 +24,9 @@ input[type=number].no-spinners::-webkit-outer-spin-button {
 input[type=number].no-spinners { 
     -moz-appearance: textfield; 
 }
+
+/* Category Tags */
+.tag-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; margin-right: 6px; }
+.tag-red { background-color: #ef4444; }
+.tag-blue { background-color: #3b82f6; }
+.tag-green { background-color: #22c55e; }
